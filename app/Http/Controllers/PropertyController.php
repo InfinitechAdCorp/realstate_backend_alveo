@@ -1,62 +1,102 @@
 <?php
 
     namespace App\Http\Controllers;
-use Illuminate\Http\JsonResponse; // Ensure this is imported at the top
-
-
+    use Illuminate\Http\JsonResponse; // Ensure this is imported at the top
+    use Illuminate\Support\Facades\Log;
     use App\Models\Property;
     use Illuminate\Http\Request;
     class PropertyController extends Controller
 
         {
-public function store(Request $request)
+ public function store(Request $request)
 {
-    // Validate incoming request
+    // Validate incoming request, including file validation
     $request->validate([
-        'key' => 'required|string|max:255', 
+        'key' => 'required|string|max:255',
         'name' => 'required|string|max:255',
         'status' => 'required|string|max:255',
         'location' => 'required|string|max:255',
+        'lat' => 'required|numeric',
+        'lng' => 'required|numeric',
         'specific_location' => 'required|string|max:255',
         'price_range' => 'required|string|max:255',
         'units' => 'required|string|max:255',
         'land_area' => 'required|string|max:255',
         'development_type' => 'required|string|max:255',
         'architectural_theme' => 'required|string|max:255',
-        'propertyImage' => 'required|image|mimes:jpg,jpeg,png',
-        'masterPlanImg' => 'required|image|mimes:jpg,jpeg,png',
+        'path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+        'view' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
     ]);
 
-    // Store property images
-    $propertyImagePath = $request->file('propertyImage')->store('properties/images', 'public');
-    $masterPlanImagePath = $request->file('masterPlanImg')->store('properties/masterplans', 'public');
+    // Generate a folder name based on the property name or a unique identifier
+    $folderName = strtolower(str_replace(' ', '_', $request->name));
 
-    // Create full URLs for images
-    $propertyImageUrl = url('storage/' . $propertyImagePath); // Generate full URL for property image
-    $masterPlanImageUrl = url('storage/' . $masterPlanImagePath); // Generate full URL for master plan image
+    // Get the path where the files will be stored (directly in public/assets)
+    $storagePath = public_path('property/' . $folderName);
 
-    // Create a new property record
+    // Check if the folder exists, if not, create it
+    if (!file_exists($storagePath)) {
+        mkdir($storagePath, 0777, true); // Create the folder and allow permissions
+    }
+
+    // Initialize file paths
+    $pathFilePath = null;
+    $viewFilePath = null;
+
+    // Check and handle 'path' file upload
+    if ($request->hasFile('path')) {
+        $pathFile = $request->file('path');
+        $pathFileName = time() . '_' . $pathFile->getClientOriginalName();  // Ensure unique file name
+        $pathFilePath = 'assets/' . $folderName . '/' . $pathFileName;
+        $pathFile->move($storagePath, $pathFileName); // Move the file to the folder
+    }
+
+    // Check and handle 'view' file upload
+    if ($request->hasFile('view')) {
+        $viewFile = $request->file('view');
+        $viewFileName = time() . '_' . $viewFile->getClientOriginalName();  // Ensure unique file name
+        $viewFilePath = 'assets/' . $folderName . '/' . $viewFileName;
+        $viewFile->move($storagePath, $viewFileName); // Move the file to the folder
+    }
+
+    // Check if the property already exists
+    $existingProperty = Property::where('name', $request->name)->first();
+
+    if ($existingProperty) {
+        return response()->json(['error' => 'Property name already exists.'], 400);
+    }
+
+    // Log the request data for debugging
+    Log::info('Received lat: ' . $request->lat);
+    Log::info('Received lng: ' . $request->lng);
+    Log::info('Request Data:', $request->all());
+
+    // Create a new property record (without saving files yet)
     $property = Property::create([
         'key' => $request->key,
         'name' => $request->name,
         'status' => $request->status,
         'location' => $request->location,
+        'lat' => (float) $request->lat,   // Cast to float
+        'lng' => (float) $request->lng,         // Ensure lng is passed
         'specific_location' => $request->specific_location,
         'price_range' => $request->price_range,
         'units' => $request->units,
         'land_area' => $request->land_area,
         'development_type' => $request->development_type,
         'architectural_theme' => $request->architectural_theme,
-        'path' => $propertyImageUrl, // Save the full URL instead of the relative path
-        'view' => $masterPlanImageUrl, // Save the full URL instead of the relative path
+        'path' => $pathFilePath,
+        'view' => $viewFilePath,
     ]);
 
-    // Optionally, return a response
+    // Return success response
     return response()->json([
         'message' => 'Property created successfully',
         'property' => $property,
     ], 201);
 }
+
+
              public function updateProperties(Request $request)
                 {
                 return response()->json(['message' => 'Hello, World!']);

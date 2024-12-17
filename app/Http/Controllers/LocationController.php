@@ -8,7 +8,7 @@ use Illuminate\Http\JsonResponse;
 
 class LocationController extends Controller
 {
- public function storeLocation(Request $request)
+public function storeLocation(Request $request)
 {
     // Validate incoming request
     $request->validate([
@@ -24,12 +24,28 @@ class LocationController extends Controller
     // Loop through each location and process it
     $savedLocations = [];
     foreach ($request->locations as $locationData) {
-        // Store location image
-        $locationImagePath = $locationData['locationImage']->store('locations/images', 'public');
-        
-        // Generate the full URL for the image
-        $locationImageUrl = url('storage/' . $locationImagePath);
-        
+        // Ensure the uploaded file is handled correctly
+        if (isset($locationData['locationImage']) && $locationData['locationImage'] instanceof UploadedFile) {
+            // Define the target directory for storing the images
+            $directory = public_path('assets/locations/images');
+
+            // Ensure the directory exists
+            if (!file_exists($directory)) {
+                mkdir($directory, 0755, true);
+            }
+
+            // Generate a unique file name
+            $fileName = time() . '_' . $locationData['locationImage']->getClientOriginalName();
+
+            // Move the file to the public directory
+            $locationData['locationImage']->move($directory, $fileName);
+
+            // Generate the public URL for the location image
+            $locationImageUrl = asset('assets/locations/images/' . $fileName);
+        } else {
+            $locationImageUrl = null; // Default to null if no valid image is provided
+        }
+
         // Create a new location record in the database
         $location = Location::create([
             'name' => $locationData['name'],
@@ -39,7 +55,7 @@ class LocationController extends Controller
             'lng' => $locationData['lng'],
             'location_image' => $locationImageUrl, // Save the full URL for the location image
         ]);
-        
+
         // Store the saved location details to return in the response
         $savedLocations[] = $location;
     }
@@ -50,6 +66,7 @@ class LocationController extends Controller
         'locations' => $savedLocations,
     ], 201);
 }
+
 
     public function search(Request $request)
     {

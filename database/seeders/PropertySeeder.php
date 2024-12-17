@@ -16,6 +16,8 @@ class PropertySeeder extends Seeder
                 'name' => 'Anissa Heights',
                 'status' => 'New',
                 'location' => 'Pasay City',
+                'lat' => 14.5333,
+                'lng' => 120.9893,
                 'specific_location' => 'P. Zamora St., Brgy. 101, San Roque District, Pasay City',
                 'price_range' => 'PHP3,098,600 - PHP3,600,000',
                 'units' => 'N/A',
@@ -45,6 +47,8 @@ class PropertySeeder extends Seeder
                 'name' => 'Allegra Garden Place',
                 'status' => 'Under Construction', // Updated status
                 'location' => 'Pasig', // Updated location
+                'lat' => 14.5733,
+                'lng' => 121.0594,
                 'specific_location' => 'Pasig Boulevard, Brgy. Bagong Ilog', // Updated specific location
                 'price_range' => 'PHP4,670,020 - PHP13,388,520', // Updated price range
                 'units' => '1BR, 2BR, 3BR, STUDIO', // Updated units
@@ -72,6 +76,8 @@ class PropertySeeder extends Seeder
                 'name' => 'Fortis Residence', // New property
                 'status' => 'Under Construction', // Status
                 'location' => 'Makati City', // Location
+                'lat' => 14.5547, 
+                'lng' => 121.0244,
                 'specific_location' => 'Chino Roces Avenue, Makati City', // Specific location
                 'price_range' => 'PHP13,832,000 - PHP38,596,000', // Price range
                 'units' => '1BR, 2BR, 3BR', // Units
@@ -95,6 +101,8 @@ class PropertySeeder extends Seeder
                 'name' => 'Moncello Crest', // New property
                 'status' => 'New', // Status
                 'location' => 'Tuba, Benguet', // Location
+                'lat' => 16.4225,
+                'lng' => 120.3502,
                 'specific_location' => 'Sitio Bato, via Bontiway, Brgy. Poblacion, Tuba, Benguet', // Specific location
                 'price_range' => 'PHP7,750,000 - PHP17,400,000', // Price range
                 'units' => '1BR, 2BR, STUDIO', // Units
@@ -121,6 +129,8 @@ class PropertySeeder extends Seeder
                 'name' => 'Mulberry Place', // New property
                 'status' => 'Ready for Occupancy, Home Ready Promo', // Status
                 'location' => 'Taguig City', // Location
+                'lat' => 14.5277, 
+                'lng' => 121.0582,
                 'specific_location' => 'Acacia Estates, Taguig City', // Specific location
                 'price_range' => 'PHP7,301,000 - PHP25,844,000', // Price range
                 'units' => '2BR, 3BR, 4BR', // Units
@@ -150,6 +160,8 @@ class PropertySeeder extends Seeder
                 'name' => 'Oak Harbor Residences', // New property
                 'status' => 'Ready for Occupancy', // Status
                 'location' => 'Paranaque', // Location
+                'lat' => 14.5081, 
+                'lng' => 120.9890,
                 'specific_location' => 'Jackson Ave. Asiaworld City, Brgy. Don Galo, Parañaque City', // Specific location
                 'price_range' => 'PHP11,888,000 - PHP56,588,000', // Price range
                 'units' => '1BR, 2BR, 3BR, LOFT', // Units
@@ -177,6 +189,8 @@ class PropertySeeder extends Seeder
                 'name' => 'One Delta Terraces', // New property
                 'status' => 'New', // Status
                 'location' => 'Quezon City', // Location
+                'lat' => 14.6460, 
+                'lng' => 121.0568,
                 'specific_location' => 'West Ave. corner Quezon Ave, Quezon City, Metro Manila', // Specific location
                 'price_range' => 'PHP6,876,000 - PHP21,712,000', // Price range
                 'units' => '2BR, 3BR, STUDIO', // Units
@@ -200,6 +214,8 @@ class PropertySeeder extends Seeder
                 'name' => 'Prisma Residence', // New property
                 'status' => 'Ready for Occupancy', // Status
                 'location' => 'Pasig', // Location (assuming it's Pasig based on specific location)
+                'lat' => 14.5842, 
+                'lng' => 121.0609,
                 'specific_location' => 'Pasig Boulevard, Brgy. Bagong Ilog', // Specific location
                 'price_range' => 'PHP4,562,000 - PHP12,174,000', // Price range
                 'units' => '1BR, 2BR', // Units
@@ -227,6 +243,8 @@ class PropertySeeder extends Seeder
                 'name' => 'Sage Residence', // New property
                 'status' => 'Under Construction', // Status
                 'location' => 'Mandaluyong City', // Location
+                'lat' => 14.5794, 
+                'lng' => 121.0365,
                 'specific_location' => 'Domingo M. Guevara and Sinag Streets, Mauway, Mandaluyong City', // Specific location
                 'price_range' => 'PHP6,464,000 - PHP15,761,000', // Price range
                 'units' => '1BR, 2BR, 3BR, STUDIO', // Units
@@ -257,6 +275,8 @@ class PropertySeeder extends Seeder
                 'name' => 'Satory Residence', // New property
                 'status' => 'Ready for Occupancy', // Status
                 'location' => 'Pasig City', // Location
+                'lat' => 14.5826, 
+                'lng' => 121.0664,
                 'specific_location' => 'F. Pasco Avenue, Santolan, Pasig City', // Specific location
                 'price_range' => 'PHP4,437,000 - PHP8,376,000', // Price range
                 'units' => '1BR, 2BR', // Units
@@ -282,6 +302,8 @@ class PropertySeeder extends Seeder
                 'name' => 'Solmera Coast', // New property
                 'status' => 'Under Construction', // Status
                 'location' => 'San Juan, Batangas', // Location
+                'lat' => 13.7952, 
+                'lng'=> 121.0640,
                 'specific_location' => 'Brgy. Calubcub II and Brgy. Subukin', // Specific location
                 'price_range' => 'PHP6,395,000 - PHP19,321,000', // Price range
                 'units' => '1BR, 2BR, STUDIO', // Units
@@ -313,6 +335,7 @@ class PropertySeeder extends Seeder
                 'name' => 'Sonora Garden Residences', // New property
                 'status' => 'Under Construction', // Status
                 'location' => 'Las Pinas', // Location
+                'lat' => 14.4485, 'lng' => 120.9940,
                 'specific_location' => 'Alabang–Zapote Road, Talon Tres, Las Pinas', // Specific location
                 'price_range' => 'PHP4,444,000 - PHP10,934,000', // Price range
                 'units' => '1BR, 2BR, 3BR', // Units
@@ -344,6 +367,7 @@ class PropertySeeder extends Seeder
                 'name' => 'The Atherton', // New property
                 'status' => 'Ready for Occupancy', // Status
                 'location' => 'Paranaque City', // Location
+                'lat' => 14.5083, 'lng'=> 120.9792,
                 'specific_location' => 'Dr. A. Santos Ave., Parañaque City', // Specific location
                 'price_range' => 'PHP4,030,000 - PHP7,968,000', // Price range
                 'units' => '1BR, 2BR', // Units
@@ -367,6 +391,7 @@ class PropertySeeder extends Seeder
                 'name' => 'The Calinea Tower', // New property
                 'status' => 'Under Construction', // Status
                 'location' => 'Caloocan City', // Location
+                'lat' => 14.6502, 'lng' => 120.9822,
                 'specific_location' => 'M.H. Del Pilar St., Grace Park, Caloocan City', // Specific location
                 'price_range' => 'PHP5,325,000 - PHP15,098,000', // Price range
                 'units' => '1BR, 2BR, 3BR, STUDIO', // Units
@@ -399,6 +424,7 @@ class PropertySeeder extends Seeder
                 'name' => 'The Campden Place', // New property
                 'status' => 'Under Construction', // Status
                 'location' => 'Manila', // Location
+                'lat' => 14.5995, 'lng' => 120.9842,
                 'specific_location' => 'Dominga St., Malate, Manila', // Specific location
                 'price_range' => 'PHP4,896,000 - PHP9,441,000', // Price range
                 'units' => 'STUDIO', // Units
@@ -424,6 +450,7 @@ class PropertySeeder extends Seeder
                 'name' => 'The Crestmont', // New property
                 'status' => 'Under Construction', // Status
                 'location' => 'Quezon City', // Location
+                'lat' => 14.6474, 'lng' => 121.0532,
                 'specific_location' => 'Panay Ave., South Triangle, Quezon City', // Specific location
                 'price_range' => 'PHP6,271,000 - PHP15,106,000', // Price range
                 'units' => '1BR, 2BR, 3BR', // Units
@@ -453,6 +480,7 @@ class PropertySeeder extends Seeder
                 'name' => 'The Erin Heights', // New property
                 'status' => 'Under Construction', // Status
                 'location' => 'Quezon City', // Location
+                'lat' => 14.6467, 'lng' => 121.0605,
                 'specific_location' => 'Commonwealth Ave. corner Tandang Sora Ave., Matandang Balara', // Specific location
                 'price_range' => 'PHP4,881,000 - PHP29,842,000', // Price range
                 'units' => '2BR, 3BR, STUDIO', // Units
@@ -489,6 +517,7 @@ class PropertySeeder extends Seeder
                 'name' => 'The Oriana', // New property
                 'status' => 'Under Construction', // Status
                 'location' => 'Quezon City', // Location
+                'lat' => 14.6418, 'lng' => 121.0582,
                 'specific_location' => 'Aurora Blvd, Project 4, Quezon City', // Specific location
                 'price_range' => 'PHP4,496,000 - PHP9,965,000', // Price range
                 'units' => '1BR, 2BR, STUDIO', // Units
@@ -515,6 +544,7 @@ class PropertySeeder extends Seeder
                 'name' => 'The Valeron Tower',
                 'status' => 'New',
                 'location' => 'Pasig City',
+                'lat' => 14.5833000,'lng' => 121.0597000,
                 'specific_location' => 'C-5 corner P.E. Antonio St., Brgy. Ugong, Pasig City',
                 'price_range' => 'PHP7,513,000 - PHP17,924,000',
                 'units' => '1BR, 2BR, 3BR, STUDIO',

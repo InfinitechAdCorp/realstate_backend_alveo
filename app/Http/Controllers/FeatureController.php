@@ -24,18 +24,32 @@ public function addFeature(Request $request)
         // Array to store new features to be appended
         $newFeatures = [];
 
-        foreach ($features as $feature) {
+        foreach ($features as $index => $feature) {
             // Process the feature image if provided
             $imagePath = null;
-            if ($request->hasFile("features.$propertyId." . array_search($feature, $features) . ".image")) {
-                $imageFile = $request->file("features.$propertyId." . array_search($feature, $features) . ".image");
-                $imagePath = $imageFile->store('assets/Location/' . $property->name, 'public');
+            if ($request->hasFile("features.$propertyId.$index.featureImage")) {
+                $imageFile = $request->file("features.$propertyId.$index.featureImage");
+                $fileName = time() . '_' . $imageFile->getClientOriginalName(); // Unique file name
+                
+                // Use propertyName in the path
+                $destinationPath = public_path('property/' . $property->name);
+
+                // Ensure the directory exists
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0755, true); // Create directory if it doesn't exist
+                }
+
+                // Move the file to the public directory
+                $imageFile->move($destinationPath, $fileName);
+
+                // Generate the public URL for the image
+                $imagePath = asset('property/' . $property->name . '/' . $fileName);
             }
 
             // Prepare the new feature data with the correct full URL for the image
             $newFeatures[] = [
                 'name' => $feature['featureName'],
-                'image' => $imagePath ? url('storage/' . $imagePath) : null, // Generate full URL for the image
+                'image' => $imagePath, // Public URL for the image or null if no image was uploaded
             ];
         }
 
@@ -49,115 +63,82 @@ public function addFeature(Request $request)
 
     return response()->json(['success' => 'Features added successfully.']);
 }
-
-
-    public function upload(Request $request)
-    {
-        // Log the incoming request data
-        Log::info('Image upload request received:', $request->all());
-
-        // Validate the request
-        $request->validate([
-            'image' => 'required|image|mimes:jpg,jpeg,png,bmp,gif,svg|max:2048', // Max size 2MB
-            'propertyId' => 'required|integer',
-            'inputIndex' => 'required|integer',
-        ]);
-
-        // Handle the file upload
-        if ($request->hasFile('image')) {
-            try {
-                $file = $request->file('image');
-                $path = $file->store('images', 'public'); // Store in 'storage/app/public/images'
-
-                // Optional: Save the image path in the database
-                // Image::create([
-                //     'image_path' => $path,
-                //     'property_id' => $request->propertyId,
-                // ]);
-
-                return response()->json([
-                    'success' => true,
-                    'imageUrl' => Storage::url($path), // Get the URL for the stored image
-                    'propertyId' => $request->propertyId,
-                    'inputIndex' => $request->inputIndex,
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Error storing image: ' . $e->getMessage());
-                return response()->json(['success' => false, 'message' => 'Image upload failed'], 500);
-            }
-        }
-
-        return response()->json(['success' => false, 'message' => 'No image uploaded'], 400);
-    }
-public function saveImage(Request $request)
+public function uploadImage(Request $request)
 {
-    // Log the incoming request data for debugging
-    Log::info('Features save request received:', $request->all());
-
-    // Validate the incoming data
+    // Validate the request
     $request->validate([
-        '*.propertyId' => 'required|integer',
-        '*.name' => 'required|string',
-        '*.featureImage' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
+        'propertyId' => 'required|integer',
+        'features'   => 'required|array',
+        'features.*.name'  => 'required|string',
+        'features.*.image' => 'required|string', // Base64-encoded image or file upload
     ]);
 
     try {
-        // Get all features from the request (this should be an array of features)
-        $features = $request->all(); 
+        // Retrieve the property
+        $property = Property::findOrFail($request->propertyId);
 
-        // Initialize a response array to gather results
-        $response = [];
+        // Normalize the folder name (making it lowercase and replacing spaces with underscores)
+        $folderName = strtolower(str_replace(' ', '_', $property->name));
 
-        foreach ($features as $feature) {
-            $propertyId = $feature['propertyId']; // Access the propertyId for the current feature
-            Log::info('Processing propertyId:', ['propertyId' => $propertyId]);
+        // Get the path where the files will be stored (directly in public/property)
+        $storagePath = public_path('property/' . $folderName);
 
-            // Find the property using the extracted propertyId
-            $property = Property::findOrFail($propertyId);
+        // Check if the folder exists, if not, create it
+        if (!file_exists($storagePath)) {
+            mkdir($storagePath, 0777, true); // Create the folder and allow permissions
+        }
 
-            // Decode existing features, or initialize an empty array if there are none
-            $existingFeatures = json_decode($property->features, true) ?: [];
+        // Process each feature
+        $features = [];
+        foreach ($request->features as $feature) {
+            $imagePath = null;
 
-            // Create an associative array for the new feature
-            $newFeature = [
-                'name' => $feature['name'],
-                'image' => null, // Default value for image
-            ];
+            // Check if the image is base64-encoded
+            if (preg_match('/^data:image\/(\w+);base64,/', $feature['image'], $type)) {
+                // Decode the base64 image
+                $image = substr($feature['image'], strpos($feature['image'], ',') + 1);
+                $image = base64_decode($image);
 
-            // Handle the image upload
-            if (isset($feature['featureImage']) && $feature['featureImage'] instanceof UploadedFile) {
-                // Store the image and get the path
-                $path = $feature['featureImage']->store('features', 'public');
-                $newFeature['image'] = Storage::url($path); // Generate the public URL for the image
+                // Generate a unique file name and save the image
+                $imageName = uniqid() . '.' . $type[1];
+                $imagePath = '/property/' . $folderName . '/' . $imageName; // Leading slash added
+                file_put_contents(public_path($imagePath), $image);
+
+            } elseif ($request->hasFile('features.*.image')) {
+                // Handle uploaded file (not base64)
+                $file = $request->file('features.*.image');
+                $fileName = $file->getClientOriginalName();
+                $file->move($storagePath, $fileName);
+                $imagePath = '/property/' . $folderName . '/' . $fileName; // Leading slash added
+
+            } else {
+                // Use the existing image path (make sure it matches the correct format)
+                $imagePath = '/property/' . $folderName . '/' . basename($feature['image']); // Leading slash added
             }
 
-            // Append the new feature to existing features
-            $existingFeatures[] = $newFeature;
-
-            // Store features as JSON in the database
-            $property->features = json_encode($existingFeatures);
-            $property->save();
-
-            // Add success message for the current property
-            $response[] = [
-                'propertyId' => $propertyId,
-                'message' => 'Feature saved successfully.',
+            // Add the processed feature to the array
+            $features[] = [
+                'name'  => $feature['name'],
+                'image' => $imagePath,
             ];
         }
 
+        // Update the features column in the database
+        $property->features = json_encode($features);
+        $property->save();
+
         return response()->json([
-            'success' => true,
-            'data' => $response,
+            'status'  => 'success',
+            'message' => 'Features updated successfully!',
+            'data'    => $property->features,
         ]);
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        Log::error('Property not found with ID: ' . $propertyId);
-        return response()->json(['success' => false, 'message' => 'Property not found.'], 404);
     } catch (\Exception $e) {
-        Log::error('Error saving features to database: ' . $e->getMessage());
-        return response()->json(['success' => false, 'message' => 'Failed to save features to database.'], 500);
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Something went wrong: ' . $e->getMessage(),
+        ], 500);
     }
 }
-
 
 
 }

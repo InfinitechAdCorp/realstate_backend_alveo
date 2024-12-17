@@ -8,18 +8,20 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+        use HasFactory, Notifiable;
    use HasApiTokens;
-   protected $fillable = ['email', 'password']; 
-
-    protected $hidden = [
-        'password',
-        'remember_token',
+   protected $fillable = [
+        'name', 'email', 'password',
     ];
 
+    // Hide password when serializing the user
+    protected $hidden = [
+        'password',
+    ];
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];

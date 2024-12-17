@@ -11,13 +11,18 @@ namespace App\Models;
 
         // Specify the table if it's not plural of the model name
         protected $table = 'properties';
-
+    protected $casts = [
+        'lat' => 'float',
+        'lng' => 'float',
+    ];
         // Define the fillable fields
         protected $fillable = [
             'key',
             'name',
             'status',
             'location',
+            'lat',
+            'lng',
             'specific_location',
             'price_range',
             'units',
@@ -26,27 +31,30 @@ namespace App\Models;
             'architectural_theme',
             'path',
             'view',
+            
             'features',
             'image_path', 
             'property_id',
             'name'
         ];
 
-        public function facilities()
-        {
-            return $this->belongsToMany(Facility::class);
-        }
+        // Relationships
+    public function facilities()
+    {
+        return $this->belongsToMany(Facility::class);
+    }
 
-        // Relationship with Features
-        public function features()
-        {
-            return $this->hasMany(Feature::class);
-        }
-        public function images()
-        {
-            return $this->hasMany(Image::class);
-        }
-          public function locations()
+    public function features()
+    {
+        return $this->hasMany(Feature::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(Image::class);
+    }
+
+    public function locations()
     {
         return $this->hasMany(Location::class);
     }

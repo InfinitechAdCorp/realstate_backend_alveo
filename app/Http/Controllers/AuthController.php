@@ -14,120 +14,96 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Admin; 
 use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\HasApiTokens;
+use App\Mail\OtpMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 class AuthController extends Controller
 {
- public function login(Request $request)
+  // Controller for login and OTP verification
+
+public function login(Request $request)
+{
+    // Validate incoming request
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    // Find user by email
+    $user = User::where('email', $request->email)->first();
+
+    // If user not found or password doesn't match, return an error
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return response()->json(['error' => 'Invalid email or password.'], 401);
+    }
+
+    // Generate OTP (random 6-digit code)
+    $otp = rand(100000, 999999);
+
+    // Store OTP in cache with 10 minutes expiry
+    Cache::put('otp_' . $user->email, $otp, 10);  // Cache for 10 minutes
+
+    // Send OTP email
+    Mail::to($user->email)->send(new OtpMail($otp));  // Send OTP via email
+
+    // Return success response indicating OTP has been sent
+    return response()->json(['message' => 'Login successful. OTP sent to email.']);
+}
+
+// Optionally, you can add a method to verify the OTP
+public function verifyOtp(Request $request)
+{
+    $request->validate([
+        'otp' => 'required|string',
+    ]);
+
+    // Get the email from the request (you could use authenticated user, if needed)
+    $email = $request->email;
+
+    // Retrieve OTP from cache
+    $otp = Cache::get('otp_' . $email);
+
+    // Check if the OTP exists and matches
+    if ($otp && $otp == $request->otp) {
+        // OTP is valid
+        // Here, you can log the user in or return a success message
+        return response()->json(['message' => 'OTP verified successfully. You are now logged in.']);
+    }
+
+    // OTP is invalid or expired
+    return response()->json(['message' => 'Invalid or expired OTP.'], 400);
+}
+
+   public function register(Request $request)
     {
-        // Validate the incoming data
+        // Validate input
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email', // Ensure email is properly formatted
-            'password' => 'required|min:6', // Password must be at least 6 characters long
-            'code' => 'required|string', // Ensure code is provided and is a string
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // Return errors if validation fails
         if ($validator->fails()) {
             return response()->json([
-                'error' => 'Validation failed',
-                'details' => $validator->errors()
+                'status' => 'error',
+                'message' => $validator->errors()
             ], 400);
         }
 
-        // Check if the code exists and matches the 'LOGIN' status
-        $companyCode = CompanyCode::where('code', $request->code)
-                                  ->where('status', 'LOGIN') // Ensure the code is for login
-                                  ->where('is_active', 1)
-                                  ->first();
-
-        // If the code is invalid, return an error
-        if (!$companyCode) {
-            return response()->json([
-                'error' => 'Invalid code',
-                'message' => 'The provided code is incorrect or not valid for login.'
-            ], 401);
-        }
-
-        // Find the user by email
-        $user = User::where('email', $request->email)->first();
-
-        // Check if the user exists and if the password matches
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'error' => 'Invalid credentials',
-                'message' => 'The provided email or password is incorrect.'
-            ], 401);
-        }
-
-
-        // Set expiration time to 2 hours from now
-    $token = $user->createToken('real-state', ['ability1', 'ability2'])
-                  ->plainTextToken;
-
-    // Store token expiration manually in the database (for validation)
-    DB::table('personal_access_tokens')
-        ->where('token', $token)
-        ->update(['expires_at' => now()->addMinutes(2)]);
-
-    // Return a success response with user data and token
-    return response()->json([
-        'message' => 'Login successful',
-        'user' => $user,  // Optionally return the user data
-        'token' => $token  // Include the generated token in the response
-    ], 200);
-}
-public function register(Request $request)
-{
-    // Log the incoming request to inspect what data is being received
-    \Log::info('Received registration request:', $request->all());
-
-    // Validate the incoming data
-    $validator = Validator::make($request->all(), [
-        'email' => 'required|email|unique:users,email', // Ensure email is unique and properly formatted
-        'password' => 'required|min:6', // Password must be at least 6 characters long
-        'code' => 'required|string', // Validate code as a required field
-    ]);
-
-    // Return errors if validation fails
-    if ($validator->fails()) {
-        return response()->json([
-            'error' => 'Validation failed',
-            'details' => $validator->errors()
-        ], 400);
-    }
-
-    // Validate if the code exists in the companycode table with status 'REGISTER'
-    $companyCode = CompanyCode::where('status', 'REGISTER') // Only look for status "REGISTER"
-                               ->where('code', $request->code) // Check for the matching code
-                               ->where('is_active', 1)
-                               ->first();
-
-    if (!$companyCode) {
-        return response()->json([
-            'error' => 'Invalid code',
-            'message' => 'The provided code does not exist or is not valid for registration.'
-        ], 400);
-    }
-
-    try {
-        // Proceed to create the user
+        // Hash password and store user
         $user = User::create([
+            'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // Hash the password for security
+            'password' => Hash::make($request->password),  // Hash the password
         ]);
 
-        // Return a success response with user data
         return response()->json([
-            'message' => 'User registered successfully',
-            'user' => $user
+            'status' => 'success',
+            'message' => 'Account created successfully!',
+            'user' => $user,
         ], 201);
-    } catch (\Exception $e) {
-        // Handle any errors that may occur during user creation
-        return response()->json([
-            'error' => 'User registration failed',
-            'exception' => $e->getMessage() // Include exception message for debugging
-        ], 500);
     }
-}
  public function storeCompanyCode($user, $password, $status, $code, $is_active)
 {
     // Validate the status to be 'register' or 'login'

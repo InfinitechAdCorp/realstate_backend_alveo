@@ -76,12 +76,12 @@ class AdminController extends Controller
 
 public function deleteProperty(Request $request)
 {
-    $request->validate(['id' => 'required|array']); // Validate that an array of IDs is provided
+    $request->validate(['id' => 'required|array']); // Ensure the IDs are in an array
 
     // Log the property IDs being used for deletion
     \Log::info('Attempting to delete properties with IDs:', $request->id);
     
-    // Delete properties based on property_id
+    // Delete the properties based on the array of IDs
     $deletedCount = Property::whereIn('id', $request->id)->delete();
 
     // Log the number of deleted properties
@@ -239,48 +239,56 @@ public function updateLocation(Request $request)
     // Return a success response for the location update
     return response()->json(['message' => 'Location updated successfully.'], 200);
 }
-
 public function updateBuildings(Request $request)
 {
     // Log the incoming request for debugging
-    \Log::info('Incoming Building Update Request:', $request->all());
+    Log::info('Incoming Building Update Request:', $request->all());
 
     // Validate the incoming request
     $validatedRequest = $request->validate([
-        '*.propertyId' => 'required|integer|exists:properties,id',
-        '*.item.id' => 'required|integer|exists:buildings,id',
-        '*.item.property_id' => 'required|integer|exists:properties,id',
-        '*.item.name' => 'required|string|max:255',
-        '*.item.development_type' => 'required|string|max:100',
-        '*.item.residential_levels' => 'nullable|integer',
-        '*.item.basement_parking_levels' => 'nullable|integer',
-        '*.item.podium_parking_levels' => 'nullable|integer',
-        '*.item.commercial_units' => 'nullable|integer',
-        '*.item.path' => 'nullable|string|max:255',
-    ]);
+    '*.propertyId' => 'required|integer|exists:properties,id',
+    '*.item.id' => 'required|integer|exists:buildings,id',
+    '*.item.property_id' => 'required|integer|exists:properties,id',
+    '*.item.name' => 'required|string|max:255',
+    '*.item.development_type' => 'required|string|max:100',
+    '*.item.residential_levels' => 'nullable|integer',
+    '*.item.basement_parking_levels' => 'nullable|integer',
+    '*.item.podium_parking_levels' => 'nullable|integer',
+    '*.item.commercial_units' => 'nullable|integer',
+    '*.item.path' => 'nullable|string|max:255',
+    '*.item.lower_ground_floor_parking_levels' => 'nullable|integer', // Ensuring this is validated
+]);
 
-    // Iterate through each item and update
+
+    // Iterate through each validated item
     foreach ($validatedRequest as $data) {
         // Find the building using the item ID
         $building = Building::find($data['item']['id']);
 
         if ($building) {
-            // Update the building with the validated data
-            $building->update([
-                'property_id' => $data['item']['property_id'],
-                'name' => $data['item']['name'],
-                'development_type' => $data['item']['development_type'],
-                'residential_levels' => $data['item']['residential_levels'],
-                'basement_parking_levels' => $data['item']['basement_parking_levels'],
-                'podium_parking_levels' => $data['item']['podium_parking_levels'],
-                'commercial_units' => $data['item']['commercial_units'],
-                'path' => $data['item']['path'],
-            ]);
+            // Only update fields that are provided, avoiding overwriting with null if not passed
+         $buildingData = [
+    'property_id' => $data['item']['property_id'],
+    'name' => $data['item']['name'],
+    'development_type' => $data['item']['development_type'],
+    'residential_levels' => $data['item']['residential_levels'] ?? $building->residential_levels,
+    'basement_parking_levels' => $data['item']['basement_parking_levels'] ?? $building->basement_parking_levels,
+    'podium_parking_levels' => $data['item']['podium_parking_levels'] ?? $building->podium_parking_levels,
+    'commercial_units' => $data['item']['commercial_units'] ?? $building->commercial_units,
+    'path' => $data['item']['path'] ?? $building->path,
+    'lower_ground_floor_parking_levels' => $data['item']['lower_ground_floor_parking_levels'] ?? $building->lower_ground_floor_parking_levels, // Use the updated value if provided
+];
 
-            \Log::info("Updated Building ID: {$data['item']['id']}");
+Log::info('Building Data to Update:', $buildingData);
+
+$building->update($buildingData);
+Log::info("Updated Building ID: {$data['item']['id']}");
+
+
+    
         } else {
             // Log an error if the building is not found
-            \Log::warning("Building with ID {$data['item']['id']} not found.");
+            Log::warning("Building with ID {$data['item']['id']} not found.");
         }
     }
 
@@ -288,93 +296,92 @@ public function updateBuildings(Request $request)
     return response()->json(['message' => 'Buildings updated successfully.'], 200);
 }
 
+
 public function updateFeatures(Request $request)
 {
-    // Log the incoming request for debugging
-    \Log::info('Incoming Request:', $request->all());
+    try {
+        // Validate the input
+        $validated = $request->validate([
+            'property_id' => 'required|integer|exists:properties,id',
+            'features' => 'required|array',
+            'features.*.name' => 'required|string',
+            'features.*.image' => 'required|string',  // Validate that the image is a string
+        ]);
 
-    // Validate incoming data structure
-    $validatedData = $request->validate([
-        '*.propertyId' => 'required|integer',
-        '*.item' => 'required|array',
-        '*.item.*.name' => 'required|string|max:255',
-        '*.item.*.image' => 'nullable|string|max:255',
-    ]);
-
-    // Prepare an array to hold updated feature results
-    $updatedFeatures = [];
-
-    foreach ($validatedData as $data) {
-        // Find the property using the propertyId as a reference
-        $property = Property::find($data['propertyId']);
-
+        // Find the property by ID
+        $property = Property::find($validated['property_id']);
         if (!$property) {
-            return response()->json(['message' => 'Property not found for ID ' . $data['propertyId']], 404);
+            return response()->json(['message' => 'Property not found'], 404);
         }
 
-        // Prepare features array for JSON encoding
-        $featuresArray = [];
+        // Handle the features and process images
+        $features = [];
+        foreach ($validated['features'] as $feature) {
+            $image = $feature['image'];
 
-        // Populate features array from validated data
-        foreach ($data['item'] as $feature) {
-            $featuresArray[] = [
-                'name' => $feature['name'],
-                'image' => $feature['image'] ?? null // Optional image field
-            ];
+            // Check if the image is base64 encoded
+            if (strpos($image, 'data:image') === 0) {
+                // Extract the base64 part and decode it
+                $imageData = explode(',', $image)[1];
+                $imageData = base64_decode($imageData);
+
+                // Define the file path where the image will be stored
+                $fileName = 'features/' . uniqid() . '.png';
+                $filePath = public_path($fileName);
+
+                // Save the image as a file
+                file_put_contents($filePath, $imageData);
+
+                // Update the feature's image with the file path
+                $feature['image'] = $fileName;
+            }
+
+            $features[] = $feature;
         }
 
-        // Update the property features field
-        $property->features = json_encode($featuresArray);
-        $property->save(); // Save the property
+        // Save the updated features as JSON in the property record
+        $property->features = json_encode($features);
+        $property->save();
 
-        // Log the updated features structure for debugging
-        \Log::info('Updated Features for Property ID ' . $data['propertyId'], $featuresArray);
-
-        // Store the updated features for the response
-        $updatedFeatures[] = [
-            'propertyId' => $data['propertyId'],
-            'features' => $featuresArray
-        ];
+        return response()->json(['message' => 'Features updated successfully']);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error updating features', 'error' => $e->getMessage()], 500);
     }
-
-    // Return a success response with all updated features
-    return response()->json(['message' => 'Property features updated successfully.', 'updatedFeatures' => $updatedFeatures], 200);
 }
+
+
+
 public function updateFacilities(Request $request)
 {
     $facilitiesData = json_decode($request->getContent(), true);
 
     foreach ($facilitiesData as $data) {
-        $propertyId = $data['propertyId'];
-        $items = $data['item'];
-
-        // Get existing facilities for the property
-        $existingFacilities = Facility::where('property_id', $propertyId)->pluck('name')->toArray();
-
-        // Update or create facilities
-        foreach ($items as $item) {
-            // Check if facility already exists
-            if (in_array($item, $existingFacilities)) {
-                // Optionally, you can perform an update here if there are other fields to update
-                continue; // Skip if facility already exists
-            } else {
-                // Create a new facility
-                Facility::create([
-                    'property_id' => $propertyId,
-                    'name' => $item,
-                ]);
-            }
+        if (!isset($data['id']) || !isset($data['property_id']) || !isset($data['name'])) {
+            return response()->json(['message' => 'Missing required fields in the request data'], 400);
         }
 
-        // Optionally, if you want to remove facilities that are no longer listed
-        $facilitiesToDelete = array_diff($existingFacilities, $items);
-        Facility::where('property_id', $propertyId)
-            ->whereIn('name', $facilitiesToDelete)
-            ->delete();
+        $facilityId = $data['id'];
+        $propertyId = $data['property_id'];
+        $facilityName = $data['name'];
+
+        $existingFacility = Facility::where('id', $facilityId)
+                                    ->where('property_id', $propertyId)
+                                    ->first();
+
+        if ($existingFacility) {
+            $existingFacility->update(['name' => $facilityName]);
+        } else {
+            Facility::create([
+                'property_id' => $propertyId,
+                'name' => $facilityName,
+            ]);
+        }
     }
 
     return response()->json(['message' => 'Facilities updated successfully!']);
 }
+
+
 public function addFacilities(Request $request)
 {
     // Validate the incoming request data
@@ -401,6 +408,7 @@ public function addFacilities(Request $request)
     // Return the created facilities as a JSON response
     return response()->json($facilities, 201);
 }
+
 public function addFacilitiesAlone(Request $request)
 {
     // Validate the incoming request data
@@ -456,10 +464,11 @@ public function store(Request $request)
 
     $uploadedImages = [];
 
-    // Store each image and collect their paths
+    // Store each image in the 'public/images' folder
     foreach ($request->file('images') as $image) {
-        $path = $image->store('images', 'public'); // Store in 'storage/app/public/images'
-        $uploadedImages[] = Storage::url($path); // Get the URL to the image
+        $path = 'images/' . $image->getClientOriginalName(); // Store using the original file name
+        $image->move(public_path('images'), $path); // Save directly to the 'public/images' directory
+        $uploadedImages[] = asset($path); // Get the publicly accessible URL
     }
 
     // Log the uploaded images for debugging

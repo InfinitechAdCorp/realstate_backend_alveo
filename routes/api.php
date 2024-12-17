@@ -27,8 +27,9 @@ Route::get('/admin/{user}/{password}/{status}/{code}/{is_active}', [AuthControll
 // Route for registering company code via URL
 Route::post('/companycode/{code}', [CompanyCodeController::class, 'storeCode']);
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::post('/login', [AuthController::class, 'login']); 
+Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
 
 Route::get('/properties', [PropertyController::class, 'index']);
 
@@ -78,7 +79,7 @@ Route::delete('/admin/deletefacility', [AdminController::class, 'deleteFacility'
 Route::post('/admin/update-location', [AdminController::class, 'updateLocation']);
 Route::post('/admin/update-properties', [AdminController::class, 'updateProperties']);
 Route::post('/admin/update-buildings', [AdminController::class, 'updateBuildings']);
-Route::post('/admin/update-features', [AdminController::class, 'updateFeatures']);
+Route::post('/admin/update-features', [FeatureController::class, 'uploadImage']);
 Route::post('/admin/update-facilities', [AdminController::class, 'updateFacilities']);
 
 Route::post('/admin/addlocation', [LocationController::class, 'storeLocation']);
@@ -87,17 +88,17 @@ Route::post('/admin/add-properties', [AdminController::class, 'addProperties']);
 Route::post('/admin/add-buildings', [AdminController::class, 'addBuildings']);
 Route::post('/admin/add-features', [AdminController::class, 'addFeatures']);
 Route::post('/admin/add-facilities', [AdminController::class, 'addFacilities']);
-Route::post('/admin/addfacilitiesalone', [AdminController::class, 'addFacilitiesAlone']);
-Route::post('/admin/addfeature', [FeatureController::class, 'addFeature']);
 
-Route::post('/admin/addbuildings', [BuildingController::class, 'addbuildings']);
+Route::post('/admin/addFacilities', [AdminController::class, 'addFacilities']);
+Route::post('/admin/addFeature', [FeatureController::class, 'addFeature']);
+Route::post('/admin/addBuildings', [BuildingController::class, 'addBuildings']);
 
-Route::post('/admin/addproperty', [PropertyController::class, 'store']);
+Route::post('/admin/addproperty', [PropertyController::class, 'store']);    
 
 
 
-Route::post('/admin/upload', [FeatureController::class, 'upload']);
-Route::post('/admin/save', [FeatureController::class, 'saveImage']);
+
+Route::post('/admin/upload', [FeatureController::class, 'uploadImage']);
 Route::get('/admin/countproperties', [PropertyController::class, 'countProperties']);
 Route::get('/admin/countotherbuildings', [BuildingController::class, 'countotherbuildings']);
 Route::get('/admin/countcondominiums', [BuildingController::class, 'countcondominiums']);

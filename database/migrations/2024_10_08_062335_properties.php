@@ -14,6 +14,9 @@ return new class extends Migration
             $table->string('key');
             $table->string('status');
             $table->string('location');
+       $table->float('lat')->nullable();
+$table->float('lng')->nullable();
+
             $table->string('specific_location'); // Ensure this field is present
             $table->string('price_range')->nullable(); // Optional
             $table->string('units')->nullable(); // Optional
