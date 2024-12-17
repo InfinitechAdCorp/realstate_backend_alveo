@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AreaController;
+use App\Models\Area;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LocationController;
@@ -7,11 +9,16 @@ use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\BuildingFeatureController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ArchitecturalThemeController;
 use App\Http\Controllers\FeatureController;
 use App\Http\Middleware\CheckApiToken;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyCodeController;
+use App\Http\Controllers\DevelopmentTypeController;
 use App\Http\Controllers\RoomPlannerController;
+use App\Http\Controllers\StatusController;
+use Illuminate\Support\Facades\Http;
+
 Route::get('/admin/update/{user}/{password}', [AdminController::class, 'updateAdminFromUrl']);
 Route::get('/admin/create/{user}/{password}', [AdminController::class, 'storeAdminFromUrl']);
 
@@ -103,3 +110,18 @@ Route::get('/admin/countproperties', [PropertyController::class, 'countPropertie
 Route::get('/admin/countotherbuildings', [BuildingController::class, 'countotherbuildings']);
 Route::get('/admin/countcondominiums', [BuildingController::class, 'countcondominiums']);
 Route::get('/admin/countlocations', [PropertyController::class, 'countlocations']);
+
+
+// Development Type
+Route::post('/admin/add-development-type', [DevelopmentTypeController::class, 'store']);
+Route::get('/admin/development-types', [DevelopmentTypeController::class, 'getAll']);
+// Architectural Theme
+Route::post('/admin/add-architectural-theme', [ArchitecturalThemeController::class, 'store']);
+Route::get('/admin/architectural-themes', [ArchitecturalThemeController::class, 'getAll']);
+// Architectural Theme
+Route::post('/admin/add-status', [StatusController::class, 'store']);
+Route::get('/admin/status', [StatusController::class, 'getAll']);
+// Area 
+Route::post('/admin/add-area', [AreaController::class, 'store']);
+Route::get('/admin/area', [AreaController::class, 'getAll']);
+Route::get('/areas/{slug}', [AreaController::class, 'show']);
