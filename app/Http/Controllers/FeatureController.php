@@ -90,8 +90,8 @@ public function uploadImage(Request $request)
 
         // Process each feature
         $features = [];
-        foreach ($request->features as $feature) {
-            $imagePath = null;
+        foreach ($request->features as $key => $feature) {
+            $imagePath = $feature['image'];  // Start with the original image path
 
             // Check if the image is base64-encoded
             if (preg_match('/^data:image\/(\w+);base64,/', $feature['image'], $type)) {
@@ -104,16 +104,15 @@ public function uploadImage(Request $request)
                 $imagePath = '/property/' . $folderName . '/' . $imageName; // Leading slash added
                 file_put_contents(public_path($imagePath), $image);
 
+            } elseif (preg_match('/^assets\//', $feature['image'])) {
+                // If the image path is a relative file path (assets/...)
+                $imagePath = '/property/' . $folderName . '/' . basename($feature['image']); // Leading slash added
             } elseif ($request->hasFile('features.*.image')) {
                 // Handle uploaded file (not base64)
-                $file = $request->file('features.*.image');
+                $file = $request->file('features.' . $key . '.image');
                 $fileName = $file->getClientOriginalName();
                 $file->move($storagePath, $fileName);
                 $imagePath = '/property/' . $folderName . '/' . $fileName; // Leading slash added
-
-            } else {
-                // Use the existing image path (make sure it matches the correct format)
-                $imagePath = '/property/' . $folderName . '/' . basename($feature['image']); // Leading slash added
             }
 
             // Add the processed feature to the array

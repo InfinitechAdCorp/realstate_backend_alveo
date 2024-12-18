@@ -14,66 +14,34 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Admin; 
 use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\HasApiTokens;
-use App\Mail\OtpMail;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Cache;
 class AuthController extends Controller
 {
-  // Controller for login and OTP verification
+   public function login(Request $request)
+    {
+        // Validate incoming request
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-public function login(Request $request)
-{
-    // Validate incoming request
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+        // Find user by email
+        $user = User::where('email', $request->email)->first();
 
-    // Find user by email
-    $user = User::where('email', $request->email)->first();
+        // If user not found or password doesn't match, return an error
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['error' => 'Invalid email or password.'], 401);
+        }
 
-    // If user not found or password doesn't match, return an error
-    if (!$user || !Hash::check($request->password, $user->password)) {
-        return response()->json(['error' => 'Invalid email or password.'], 401);
+        // If credentials are correct, return success response
+        return response()->json(['message' => 'Login successful.']);
     }
 
-    // Generate OTP (random 6-digit code)
-    $otp = rand(100000, 999999);
+// In your AuthController or another relevant controller
 
-    // Store OTP in cache with 10 minutes expiry
-    Cache::put('otp_' . $user->email, $otp, 10);  // Cache for 10 minutes
 
-    // Send OTP email
-    Mail::to($user->email)->send(new OtpMail($otp));  // Send OTP via email
-
-    // Return success response indicating OTP has been sent
-    return response()->json(['message' => 'Login successful. OTP sent to email.']);
-}
-
-// Optionally, you can add a method to verify the OTP
-public function verifyOtp(Request $request)
-{
-    $request->validate([
-        'otp' => 'required|string',
-    ]);
-
-    // Get the email from the request (you could use authenticated user, if needed)
-    $email = $request->email;
-
-    // Retrieve OTP from cache
-    $otp = Cache::get('otp_' . $email);
-
-    // Check if the OTP exists and matches
-    if ($otp && $otp == $request->otp) {
-        // OTP is valid
-        // Here, you can log the user in or return a success message
-        return response()->json(['message' => 'OTP verified successfully. You are now logged in.']);
-    }
-
-    // OTP is invalid or expired
-    return response()->json(['message' => 'Invalid or expired OTP.'], 400);
-}
 
    public function register(Request $request)
     {

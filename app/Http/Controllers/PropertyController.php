@@ -24,14 +24,14 @@
         'land_area' => 'required|string|max:255',
         'development_type' => 'required|string|max:255',
         'architectural_theme' => 'required|string|max:255',
-        'path' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
-        'view' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+        'path'  => 'nullable|image|max:2048',
+        'view' => 'nullable|image|max:2048',
     ]);
 
     // Generate a folder name based on the property name or a unique identifier
     $folderName = strtolower(str_replace(' ', '_', $request->name));
 
-    // Get the path where the files will be stored (directly in public/assets)
+    // Get the path where the files will be stored (directly in public/property)
     $storagePath = public_path('property/' . $folderName);
 
     // Check if the folder exists, if not, create it
@@ -47,7 +47,7 @@
     if ($request->hasFile('path')) {
         $pathFile = $request->file('path');
         $pathFileName = time() . '_' . $pathFile->getClientOriginalName();  // Ensure unique file name
-        $pathFilePath = 'assets/' . $folderName . '/' . $pathFileName;
+        $pathFilePath = 'property/' . $folderName . '/' . $pathFileName;  // Store path relative to 'public' directory
         $pathFile->move($storagePath, $pathFileName); // Move the file to the folder
     }
 
@@ -55,7 +55,7 @@
     if ($request->hasFile('view')) {
         $viewFile = $request->file('view');
         $viewFileName = time() . '_' . $viewFile->getClientOriginalName();  // Ensure unique file name
-        $viewFilePath = 'assets/' . $folderName . '/' . $viewFileName;
+        $viewFilePath = 'property/' . $folderName . '/' . $viewFileName;  // Store path relative to 'public' directory
         $viewFile->move($storagePath, $viewFileName); // Move the file to the folder
     }
 
@@ -71,22 +71,22 @@
     Log::info('Received lng: ' . $request->lng);
     Log::info('Request Data:', $request->all());
 
-    // Create a new property record (without saving files yet)
+    // Create a new property record
     $property = Property::create([
         'key' => $request->key,
         'name' => $request->name,
         'status' => $request->status,
         'location' => $request->location,
         'lat' => (float) $request->lat,   // Cast to float
-        'lng' => (float) $request->lng,         // Ensure lng is passed
+        'lng' => (float) $request->lng,   // Ensure lng is passed
         'specific_location' => $request->specific_location,
         'price_range' => $request->price_range,
         'units' => $request->units,
         'land_area' => $request->land_area,
         'development_type' => $request->development_type,
         'architectural_theme' => $request->architectural_theme,
-        'path' => $pathFilePath,
-        'view' => $viewFilePath,
+        'path' => $pathFilePath,  // Save relative file path
+        'view' => $viewFilePath,  // Save relative file path
     ]);
 
     // Return success response
@@ -95,6 +95,7 @@
         'property' => $property,
     ], 201);
 }
+
 
 
              public function updateProperties(Request $request)
