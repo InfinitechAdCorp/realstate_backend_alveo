@@ -194,7 +194,7 @@ public function features()
 }
 public function deleteProperties(Request $request)
 {
-    \Log::info('Delete Request Received:', $request->all()); // Log the request data
+    Log::info('Delete Request Received:', $request->all()); // Log the request data
 
     $ids = $request->input('id'); // Expecting an array of IDs
     
