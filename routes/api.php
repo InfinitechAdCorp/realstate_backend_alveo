@@ -17,6 +17,7 @@ use App\Http\Controllers\CompanyCodeController;
 use App\Http\Controllers\DevelopmentTypeController;
 use App\Http\Controllers\RoomPlannerController;
 use App\Http\Controllers\SetAppointmentController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\StatusController;
 use Illuminate\Support\Facades\Http;
 
@@ -55,6 +56,9 @@ Route::get('/searchlocation', [LocationController::class, 'search']);
 Route::get('/api/properties', function () {
     return Http::get('https://localhost:8000/properties');
 });
+
+// Contact Us
+Route::post('/contact', [ContactController::class, 'store']);
 
 
 Route::get('/admin/properties', [PropertyController::class, 'properties']);
