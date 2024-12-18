@@ -12,20 +12,18 @@ use Illuminate\Queue\SerializesModels;
 class OtpMail extends Mailable
 {
     use Queueable, SerializesModels;
-   public $otp;
-    /**
-     * Create a new message instance.
-     */
-      public function __construct($otp)
+
+    public $otp;
+
+    public function __construct($otp)
     {
         $this->otp = $otp;
     }
 
-    // Build the message
     public function build()
     {
         return $this->subject('Your OTP Code')
-                    ->view('emails.otp'); // Ensure you have a view to send
+                    ->view('emails.otp'); // The OTP will not be shown here
     }
     /**
      * Get the message envelope.

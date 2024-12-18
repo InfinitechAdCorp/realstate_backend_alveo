@@ -56,7 +56,8 @@ private function validateBuildingData(Request $request)
         'podiumParkingLevels' => 'required|integer',
         'commercialUnits' => 'required|integer',
         'lowerGroundParkingLevels' => 'required|integer',
-        'buildingView' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+  'buildingView' => 'nullable|image|max:2048',
+
     ]);
 }
 

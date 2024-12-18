@@ -35,9 +35,7 @@ Route::get('/admin/{user}/{password}/{status}/{code}/{is_active}', [AuthControll
 // Route for registering company code via URL
 Route::post('/companycode/{code}', [CompanyCodeController::class, 'storeCode']);
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-
-Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
+Route::post('/login', [AuthController::class, 'login']);    
 
 Route::get('/properties', [PropertyController::class, 'index']);
 
