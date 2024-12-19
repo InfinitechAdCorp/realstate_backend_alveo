@@ -19,6 +19,7 @@ use App\Http\Controllers\RoomPlannerController;
 use App\Http\Controllers\SetAppointmentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\StatusController;
+use App\Http\Controllers\SubmitPropertyController;
 use Illuminate\Support\Facades\Http;
 
 Route::get('/admin/update/{user}/{password}', [AdminController::class, 'updateAdminFromUrl']);
@@ -132,5 +133,8 @@ Route::get('/areas/{slug}', [AreaController::class, 'show']);
 //Set Appointment
 Route::post('/set-appointment', [SetAppointmentController::class, 'store']);
 Route::post('/admin/appointment/accept', [SetAppointmentController::class, 'accept']);
-Route::post('/admin/appointment/decline/{id}', [SetAppointmentController::class, 'decline']);
 Route::get('/admin/appointments', [SetAppointmentController::class, 'getAll']);
+//Submit Property
+Route::post('/submit-property', [SubmitPropertyController::class, 'store']);
+Route::get('/admin/submitted-properties', [SubmitPropertyController::class, 'getAll']);
+Route::post('/admin/submitted-properties/update', [SubmitPropertyController::class, 'update']);
