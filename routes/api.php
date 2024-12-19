@@ -133,6 +133,6 @@ Route::get('/areas', [AreaController::class, 'get']);
 Route::get('/areas/{slug}', [AreaController::class, 'show']);
 //Set Appointment
 Route::post('/set-appointment', [SetAppointmentController::class, 'store']);
-Route::post('/admin/appointment/accept/{id}', [SetAppointmentController::class, 'accept']);
+Route::post('/admin/appointment/accept', [SetAppointmentController::class, 'accept']);
 Route::post('/admin/appointment/decline/{id}', [SetAppointmentController::class, 'decline']);
 Route::get('/admin/appointments', [SetAppointmentController::class, 'getAll']);

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string("fullname");
             $table->string("datetime");
             $table->string("email");
-            $table->integer("number");
+            $table->string("number");
             $table->string("reason");
             $table->string("property");
             $table->text("message");
