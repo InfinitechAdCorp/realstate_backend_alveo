@@ -9,7 +9,7 @@
     class PropertyController extends Controller
 
         {
- public function store(Request $request)
+public function store(Request $request)
 {
     // Validate incoming request, including file validation
     $request->validate([
@@ -40,6 +40,10 @@
         mkdir($storagePath, 0777, true); // Create the folder and allow permissions
     }
 
+    // Initialize file paths
+    $pathFilePath = null;
+    $viewFilePath = null;
+
     // Check and handle 'path' file upload
     if ($request->hasFile('path')) {
         $pathFile = $request->file('path');
@@ -55,17 +59,13 @@
         $viewFilePath = 'property/' . $folderName . '/' . $viewFileName;  // Store path relative to 'public' directory
         $viewFile->move($storagePath, $viewFileName); // Move the file to the folder
     }
-        // Initialize file paths
-        $pathFilePath = null;
-        $viewFilePath = null;
 
-        // Check and handle 'path' file upload
-        if ($request->hasFile('path')) {
-            $pathFile = $request->file('path');
-            $pathFileName = time() . '_' . $pathFile->getClientOriginalName();  // Ensure unique file name
-            $pathFilePath = 'assets/' . $folderName . '/' . $pathFileName;
-            $pathFile->move($storagePath, $pathFileName); // Move the file to the folder
-        }
+    // Check if the property already exists
+    $existingProperty = Property::where('name', $request->name)->first();
+
+    if ($existingProperty) {
+        return response()->json(['error' => 'Property name already exists.'], 400);
+    }
 
     // Log the request data for debugging
     Log::info('Received lat: ' . $request->lat);
@@ -96,67 +96,6 @@
         'property' => $property,
     ], 201);
 }
-
-        // Check if the property already exists
-        $existingProperty = Property::where('name', $request->name)->first();
-             public function updateProperties(Request $request)
-                {
-                return response()->json(['message' => 'Hello, World!']);
-                }
-        public function index(Request $request)
-{
-    // Get query parameters
-    $filter = $request->query('filter');
-    $search = $request->query('search');
-
-    // Start the query for properties
-    $properties = Property::query();
-
-    // Check if both filter and search are provided
-    if ($filter && $search) {
-        // Ensure filter is a valid column name to prevent SQL injection
-        $validFilters = ['name',
-            'status',
-            'location',
-            'specific_location',
-            'price_range',
-            'units',
-            'land_area',
-            'development_type',
-            'architectural_theme',]; // Adjust with your actual fields
-        if (in_array($filter, $validFilters)) {
-            $properties->where($filter, 'like', "%{$search}%");
-        }
-
-        // Log the request data for debugging
-        Log::info('Received lat: ' . $request->lat);
-        Log::info('Received lng: ' . $request->lng);
-        Log::info('Request Data:', $request->all());
-
-        // Create a new property record (without saving files yet)
-        $property = Property::create([
-            'key' => $request->key,
-            'name' => $request->name,
-            'status' => $request->status,
-            'location' => $request->location,
-            'lat' => (float) $request->lat,   // Cast to float
-            'lng' => (float) $request->lng,         // Ensure lng is passed
-            'specific_location' => $request->specific_location,
-            'price_range' => $request->price_range,
-            'units' => $request->units,
-            'land_area' => $request->land_area,
-            'development_type' => $request->development_type,
-            'architectural_theme' => $request->architectural_theme,
-            'path' => $pathFilePath,
-            'view' => $viewFilePath,
-        ]);
-
-        // Return success response
-        return response()->json([
-            'message' => 'Property created successfully',
-            'property' => $property,
-        ], 201);
-    }
 
 
     public function updateProperties(Request $request)

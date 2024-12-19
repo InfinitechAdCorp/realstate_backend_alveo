@@ -27,4 +27,17 @@ class DevelopmentTypeController extends Controller
 
         return response()->json(['message' => 'Development Type added successfully'], 201);
     }
+    public function destroy($id)
+{
+    $developmentType = DevelopmentType::find($id);
+
+    if (!$developmentType) {
+        return response()->json(['message' => 'Development Type not found'], 404);
+    }
+
+    $developmentType->delete();
+
+    return response()->json(['message' => 'Development Type deleted successfully'], 200);
+}
+
 }

@@ -26,4 +26,17 @@ class ArchitecturalThemeController extends Controller
 
         return response()->json(['message' => 'Added successfully'], 201);
     }
+public function deleteArchitecturalTheme($id)
+{
+    $theme = ArchitecturalTheme::find($id);
+
+    if ($theme) {
+        $theme->delete();
+        return response()->json(['message' => 'Architectural Theme deleted successfully']);
+    }
+
+    return response()->json(['message' => 'Architectural Theme not found'], 404);
+}
+
+
 }

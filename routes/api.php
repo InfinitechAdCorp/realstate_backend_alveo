@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AreaController;
+
 use App\Models\Area;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +20,50 @@ use App\Http\Controllers\SetAppointmentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\StatusController;
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\AreaController;
+
+Route::get('/admin/getChatbot', [ChatbotController::class, 'index']); // Fetch all chatbot data
+Route::post('/admin/chatbot', [ChatbotController::class, 'store']); // Add new chatbot data
+Route::put('/admin/chatbot/{id}', [ChatbotController::class, 'update']); // Update chatbot data
+Route::delete('/admin/delete-chatbot/{id}', [ChatbotController::class, 'destroy']); // Delete chatbot data
+// In routes/api.php for API request
+Route::post('/admin/add-area', [AreaController::class, 'store']);
+
+Route::post('admin/add-{type}', [ResourceController::class, 'addResource']);
+Route::delete('admin/delete-{type}/{id}', [ResourceController::class, 'deleteResource']);
+// Routes for deleting status and architectural theme
+// Route to delete architectural theme
+Route::delete('/admin/delete-architectural-theme/{id}', [ArchitecturalThemeController::class, 'deleteArchitecturalTheme']);
+
+Route::delete('/admin/delete-status/{id}', [StatusController::class, 'deleteStatus']);
+
+Route::delete('/admin/delete-development-type/{id}', [DevelopmentTypeController::class, 'destroy']);
+
+
+Route::post('/admin/add-development-type', [DevelopmentTypeController::class, 'store']);
+
+
+Route::get('/admin/status', [StatusController::class, 'getAll']);
+Route::get('/admin/development-types', [DevelopmentTypeController::class, 'getAll']);
+Route::get('/admin/architectural-themes', [ArchitecturalThemeController::class, 'getAll']);
+Route::post('/admin/add-architectural-theme', [ArchitecturalThemeController::class, 'store']);
+Route::post('/admin/add-status', [StatusController::class, 'store']);
+// routes/api.php
+// routes/api.php
+Route::get('/admin/area_specific/{param}', [AreaController::class, 'getSpecific']);
+
+Route::get('/admin/area', [AreaController::class, 'getAll']);
+Route::get('/areas/{slug}', [AreaController::class, 'show']);
+//Set Appointment
+
+Route::post('/set-appointment', [SetAppointmentController::class, 'store']);
+Route::post('/admin/appointment/accept/{id}', [SetAppointmentController::class, 'accept']);
+Route::post('/admin/appointment/decline/{id}', [SetAppointmentController::class, 'decline']);
+Route::get('/admin/appointments', [SetAppointmentController::class, 'getAll']);
+
+
 
 Route::get('/admin/update/{user}/{password}', [AdminController::class, 'updateAdminFromUrl']);
 Route::get('/admin/create/{user}/{password}', [AdminController::class, 'storeAdminFromUrl']);
@@ -115,22 +159,3 @@ Route::get('/admin/countcondominiums', [BuildingController::class, 'countcondomi
 Route::get('/admin/countlocations', [PropertyController::class, 'countlocations']);
 
 
-// Development Type
-Route::post('/admin/add-development-type', [DevelopmentTypeController::class, 'store']);
-Route::get('/admin/development-types', [DevelopmentTypeController::class, 'getAll']);
-// Architectural Theme
-Route::post('/admin/add-architectural-theme', [ArchitecturalThemeController::class, 'store']);
-Route::get('/admin/architectural-themes', [ArchitecturalThemeController::class, 'getAll']);
-// Architectural Theme
-Route::post('/admin/add-status', [StatusController::class, 'store']);
-Route::get('/admin/status', [StatusController::class, 'getAll']);
-// Area 
-Route::post('/admin/add-area', [AreaController::class, 'store']);
-Route::get('/admin/area', [AreaController::class, 'getAll']);
-Route::get('/areas', [AreaController::class, 'get']);
-Route::get('/areas/{slug}', [AreaController::class, 'show']);
-//Set Appointment
-Route::post('/set-appointment', [SetAppointmentController::class, 'store']);
-Route::post('/admin/appointment/accept/{id}', [SetAppointmentController::class, 'accept']);
-Route::post('/admin/appointment/decline/{id}', [SetAppointmentController::class, 'decline']);
-Route::get('/admin/appointments', [SetAppointmentController::class, 'getAll']);

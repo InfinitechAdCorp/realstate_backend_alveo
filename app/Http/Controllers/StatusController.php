@@ -12,7 +12,16 @@ class StatusController extends Controller
         $developmentTypes = Status::all(); // Fetch all development types
         return response()->json($developmentTypes, 200); // Return the data as JSON with a 200 OK status
     }
-    
+public function deleteStatus($id) {
+    $status = Status::find($id);
+    if ($status) {
+        $status->delete();
+        return response()->json(['message' => 'Status deleted successfully']);
+    } else {
+        return response()->json(['error' => 'Status not found'], 404);
+    }
+}
+
 
     public function store(Request $request)
     {
