@@ -9,24 +9,20 @@ class AreaController extends Controller
 {
     public function getAll()
     {
-        $archiTheme = Area::all();
-        return response()->json($archiTheme, 200);
+        $data = Area::all();
+        return response()->json($data, 200);
     }
 
-    public function show($slug)
+    public function get()
     {
-        // Query the database for the area by slug
-        $slug = strtolower($slug); // Ensure the slug is lowercase
-    
-        // Query the Area model by comparing with the slug (after formatting the database's area_name)
-        $area = Area::whereRaw('LOWER(REPLACE(area_name, " ", "-")) = ?', [$slug])->first();
-    
-        if (!$area) {
-            return response()->json(['message' => 'Area not found'], 404);
-        }
+        $data = Area::all()->map(function ($item) {
+            $item->area_name = strtolower(str_replace(' ', '', $item->area_name)); 
+            return $item;
+        });
 
-        return response()->json($area);
+        return response()->json($data, 200); // Return the transformed data
     }
+
 
     public function store(Request $request)
     {
@@ -34,19 +30,24 @@ class AreaController extends Controller
             'area_name' => 'required|string|max:255',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'image' => 'nullable',
+            'image' => 'nullable|image',  // Ensure it's an image file if provided
         ]);
 
-        $imagePath = null;
+        $imageName = null;
+
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('property_images', 'public');
+            $imageFile = $request->file('image');
+
+            $imageName = $imageFile->getClientOriginalName();
+
+            $imageFile->move(public_path('images'), $imageName);
         }
 
         Area::create([
             'area_name' => $request->area_name,
             'title' => $request->title,
             'description' => $request->description,
-            'image' => $imagePath,
+            'image' => $imageName,  
         ]);
 
         // Return a successful response

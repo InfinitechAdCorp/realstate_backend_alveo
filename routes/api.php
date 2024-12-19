@@ -16,6 +16,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyCodeController;
 use App\Http\Controllers\DevelopmentTypeController;
 use App\Http\Controllers\RoomPlannerController;
+use App\Http\Controllers\SetAppointmentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\StatusController;
 use Illuminate\Support\Facades\Http;
@@ -126,4 +127,10 @@ Route::get('/admin/status', [StatusController::class, 'getAll']);
 // Area 
 Route::post('/admin/add-area', [AreaController::class, 'store']);
 Route::get('/admin/area', [AreaController::class, 'getAll']);
+Route::get('/areas', [AreaController::class, 'get']);
 Route::get('/areas/{slug}', [AreaController::class, 'show']);
+//Set Appointment
+Route::post('/set-appointment', [SetAppointmentController::class, 'store']);
+Route::post('/admin/appointment/accept/{id}', [SetAppointmentController::class, 'accept']);
+Route::post('/admin/appointment/decline/{id}', [SetAppointmentController::class, 'decline']);
+Route::get('/admin/appointments', [SetAppointmentController::class, 'getAll']);
