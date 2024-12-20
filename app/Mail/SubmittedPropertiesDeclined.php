@@ -9,10 +9,13 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class AppointmentAccepted extends Mailable
+class SubmittedPropertiesDeclined extends Mailable
 {
     use Queueable, SerializesModels;
 
+    /**
+     * Create a new message instance.
+     */
     public $appointment;
 
     public function __construct($appointment)
@@ -26,7 +29,7 @@ class AppointmentAccepted extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Appointment Accepted',
+            subject: 'Submitted Property Declined',
         );
     }
 
@@ -36,9 +39,10 @@ class AppointmentAccepted extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'email.appointmentAccepted',  // Correct the view path here
+            view: 'email.submittedPropertyDeclined',  // Correct the view path here
         );
     }
+
 
     /**
      * Get the attachments for the message.
@@ -50,4 +54,3 @@ class AppointmentAccepted extends Mailable
         return [];
     }
 }
-
