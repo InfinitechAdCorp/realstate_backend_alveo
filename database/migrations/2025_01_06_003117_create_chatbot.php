@@ -11,21 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('areas', function (Blueprint $table) {
+        Schema::create('chatbot', function (Blueprint $table) {
             $table->id();
-            $table->string("area_name");
-            $table->string("title");
-            $table->string("description");
-            $table->string("image")->nullable();
+            $table->string('question');
+            $table->text('answer');
             $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('areas');
+        Schema::dropIfExists('chatbot');
     }
 };

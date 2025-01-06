@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\AreaController;
-use App\Models\Area;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AreaController;
+
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\BuildingController;
 use App\Http\Controllers\BuildingFeatureController;
@@ -20,7 +21,19 @@ use App\Http\Controllers\SetAppointmentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\SubmitPropertyController;
+use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Http;
+
+Route::get('/getlocations', [PropertyController::class, 'getAllLocations']);
+
+Route::get('/admin/getChatbot', [ChatbotController::class, 'index']);
+Route::post('/admin/addChatbot', [ChatbotController::class, 'addChatbot']);
+Route::delete('/admin/deleteChatbot/{id}', [ChatbotController::class, 'deleteChatbot']);
+
+Route::delete('/admin/delete-development-type/{id}', [DevelopmentTypeController::class, 'delete']);
+Route::delete('/admin/delete-architectural-theme/{id}', [ArchitecturalThemeController::class, 'delete']);
+Route::delete('/admin/delete-status/{id}', [StatusController::class, 'delete']);
+Route::delete('/admin/delete-location/{id}', [AreaController::class, 'delete']);
 
 Route::get('/admin/update/{user}/{password}', [AdminController::class, 'updateAdminFromUrl']);
 Route::get('/admin/create/{user}/{password}', [AdminController::class, 'storeAdminFromUrl']);
@@ -135,6 +148,6 @@ Route::post('/set-appointment', [SetAppointmentController::class, 'store']);
 Route::post('/admin/appointment/accept', [SetAppointmentController::class, 'accept']);
 Route::get('/admin/appointments', [SetAppointmentController::class, 'getAll']);
 //Submit Property
-Route::post('/submit-property', [SubmitPropertyController::class, 'store']);
+Route::post('/admin/submit-property', [SubmitPropertyController::class, 'store']);
 Route::get('/admin/submitted-properties', [SubmitPropertyController::class, 'getAll']);
 Route::post('/admin/submitted-properties/update', [SubmitPropertyController::class, 'update']);

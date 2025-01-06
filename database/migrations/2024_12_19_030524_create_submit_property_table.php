@@ -12,17 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('submit_property', function (Blueprint $table) {
-            $table->id();
-            $table->string("last_name");
-            $table->string("first_name");
-            $table->string("email");
-            $table->string("number", 20);
-            $table->string("property_name");
-            $table->string("unit_type");
-            $table->double("price");
-            $table->string("location");
-            $table->json('images')->nullable();      
-            $table->string('status')->default("PENDING");      
+      $table->id();
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('email');
+            $table->string('phone');
+            $table->string('property_name');
+            $table->string('location');
+            $table->string('price');
+            $table->string('status');
+            $table->text('description');
+            $table->json('files'); // Store image data in base64 or URLs
             $table->timestamps();
         });
     }

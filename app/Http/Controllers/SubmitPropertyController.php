@@ -11,48 +11,75 @@ use Illuminate\Support\Facades\Mail;
 
 class SubmitPropertyController extends Controller
 {
-    public function store(Request $request)
-    {
-        // Validate the request
-        $request->validate([
-            'last_name' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'number' => 'required|string|max:15',
-            'property_name' => 'required|string|max:255',
-            'unit_type' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'location' => 'required|string|max:255',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+public function store(Request $request)
+{
+    // Validate incoming request data
+    $validatedData = $request->validate([
+        'personalInformation.firstName' => 'required|string',
+        'personalInformation.lastName' => 'required|string',
+        'personalInformation.email' => 'required|email',
+        'personalInformation.phone' => 'required|string',
+        'propertyInformation.name' => 'required|string',
+        'propertyInformation.location' => 'required|string',
+        'propertyInformation.price' => 'required|string',
+        'propertyInformation.status' => 'required|string',
+        'propertyInformation.description' => 'required|string',
+        'propertyInformation.files' => 'required|array', // Validate that files are provided
+        'propertyInformation.files.*' => 'file|mimes:jpeg,png,jpg', // Validate that each is a valid image
+    ]);
 
-        // Handle file uploads
-        $imagePaths = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $filename = time() . '_' . uniqid() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('images/submitted_properties'), $filename);
-                $imagePaths[] = 'images/submitted_properties/' . $filename;
-            }
-        }
+    // Extract personal and property information
+    $personalInfo = $request->input('personalInformation');
+    $propertyInfo = $request->input('propertyInformation');
 
-        // Create the property record
-        SubmitProperty::create([
-            'last_name' => $request->last_name,
-            'first_name' => $request->first_name,
-            'email' => $request->email,
-            'number' => $request->number,
-            'property_name' => $request->property_name,
-            'unit_type' => $request->unit_type,
-            'price' => $request->price,
-            'location' => $request->location,
-            'images' => json_encode($imagePaths),
-        ]);
+    // Initialize an array to hold file paths
+    $filePaths = [];
 
-        return response()->json([
-            'message' => 'Propery submitted successfully!',
-        ], 200);
+    // Create a custom folder name based on the property and personal information
+    $folderName = $propertyInfo['name'] . '_' . $personalInfo['lastName'];
+
+    // Define the base path in the public directory
+    $basePath = public_path('submitted_property' . DIRECTORY_SEPARATOR . $folderName);
+
+    // Create the folder if it does not exist
+    if (!file_exists($basePath)) {
+        mkdir($basePath, 0777, true);
     }
+
+    // Check if files were uploaded
+    if ($request->hasFile('propertyInformation.files')) {
+        // Loop through each uploaded file
+        foreach ($request->file('propertyInformation.files') as $file) {
+            // Generate a unique file name
+            $fileName = uniqid('property_') . '.' . $file->getClientOriginalExtension();
+
+            // Store the file in the custom folder within the public path
+            $file->move($basePath, $fileName);
+
+            // Add the file path to the array (no extra slashes)
+            $filePaths[] = 'submitted_property' . DIRECTORY_SEPARATOR . $folderName . DIRECTORY_SEPARATOR . $fileName;
+        }
+    }
+
+    // Create the SubmitProperty record with file paths
+    $submittedProperty = SubmitProperty::create([
+        'first_name' => $personalInfo['firstName'],
+        'last_name' => $personalInfo['lastName'],
+        'email' => $personalInfo['email'],
+        'phone' => $personalInfo['phone'],
+        'property_name' => $propertyInfo['name'],
+        'location' => $propertyInfo['location'],
+        'price' => $propertyInfo['price'],
+        'status' => $propertyInfo['status'],
+        'description' => $propertyInfo['description'],
+        'files' => json_encode($filePaths), // Save file paths in JSON format
+    ]);
+
+    // Return a response
+    return response()->json(['message' => 'Property submitted successfully!'], 200);
+}
+
+
 
     public function getAll()
     {
