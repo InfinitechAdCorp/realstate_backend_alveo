@@ -145,6 +145,7 @@ Route::post('/admin/add-area', [AreaController::class, 'store']);
 Route::get('/admin/area', [AreaController::class, 'getAll']);
 Route::get('/areas', [AreaController::class, 'get']);
 Route::get('/areas/{slug}', [AreaController::class, 'show']);
+
 //Set Appointment
 Route::post('/set-appointment', [SetAppointmentController::class, 'store']);
 Route::post('/admin/appointment/accept', [SetAppointmentController::class, 'accept']);
