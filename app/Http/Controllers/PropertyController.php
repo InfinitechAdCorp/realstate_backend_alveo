@@ -16,7 +16,13 @@ public function getAllLocations()
 
     return response()->json($locations);
 }
+public function getAllArchitectural()
+{
+    // Example with query builder for more control
+    $locations = Property::select('architectural_theme')->distinct()->get();
 
+    return response()->json($locations);
+}
  public function store(Request $request)
 {
     // Validate incoming request, including file validation

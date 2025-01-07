@@ -25,6 +25,8 @@ use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Http;
 
 Route::get('/getlocations', [PropertyController::class, 'getAllLocations']);
+Route::get('/getArchitectural', [PropertyController::class, 'getAllArchitectural']);
+
 
 Route::get('/admin/getChatbot', [ChatbotController::class, 'index']);
 Route::post('/admin/addChatbot', [ChatbotController::class, 'addChatbot']);
