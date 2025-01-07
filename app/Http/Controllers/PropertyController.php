@@ -9,6 +9,20 @@
     class PropertyController extends Controller
 
         {
+public function getAllLocations()
+{
+    // Example with query builder for more control
+    $locations = Property::select('location')->distinct()->get();
+
+    return response()->json($locations);
+}
+public function getAllArchitectural()
+{
+    // Example with query builder for more control
+    $locations = Property::select('architectural_theme')->distinct()->get();
+
+    return response()->json($locations);
+}
  public function store(Request $request)
 {
     // Validate incoming request, including file validation
@@ -98,11 +112,8 @@
 }
 
         // Check if the property already exists
-        $existingProperty = Property::where('name', $request->name)->first();
-             public function updateProperties(Request $request)
-                {
-                return response()->json(['message' => 'Hello, World!']);
-                }
+   
+     
         public function index(Request $request)
 {
     // Get query parameters
@@ -157,44 +168,7 @@
             'property' => $property,
         ], 201);
     }
-
-
-    public function updateProperties(Request $request)
-    {
-        return response()->json(['message' => 'Hello, World!']);
-    }
-    public function index(Request $request)
-    {
-        // Get query parameters
-        $filter = $request->query('filter');
-        $search = $request->query('search');
-
-        // Start the query for properties
-        $properties = Property::query();
-
-        // Check if both filter and search are provided
-        if ($filter && $search) {
-            // Ensure filter is a valid column name to prevent SQL injection
-            $validFilters = [
-                'name',
-                'status',
-                'location',
-                'specific_location',
-                'price_range',
-                'units',
-                'land_area',
-                'development_type',
-                'architectural_theme',
-            ]; // Adjust with your actual fields
-            if (in_array($filter, $validFilters)) {
-                $properties->where($filter, 'like', "%{$search}%");
-            }
-        }
-
-        // Return the properties as a JSON response
-        return response()->json($properties->get());
-    }
-
+}
     public function show($slug)
     {
         // Assuming you have a Property model that fetches the properties
@@ -271,4 +245,5 @@
 
         return response()->json(['message' => 'Properties deleted successfully']);
     }
+    
 }

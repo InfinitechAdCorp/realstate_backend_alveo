@@ -12,14 +12,18 @@ class SubmitProperty extends Model
     protected $table = "submit_property";
 
     protected $fillable =[
-        "last_name",
-        "first_name",
-        "email",
-        "number",
-        "property_name",
-        "unit_type",
-        "price",
-        "location",
-        "images",
+           'first_name',
+        'last_name',
+        'email',
+        'phone',
+        'property_name',
+        'location',
+        'price',
+        'status',
+        'description',
+        'files',
+    ];
+       protected $casts = [
+        'files' => 'array', // Cast the 'files' column as an array (store JSON)
     ];
 }
