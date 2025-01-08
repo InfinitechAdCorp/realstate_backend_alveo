@@ -26,7 +26,10 @@ use Illuminate\Support\Facades\Http;
 
 Route::get('/getlocations', [PropertyController::class, 'getAllLocations']);
 Route::get('/getArchitectural', [PropertyController::class, 'getAllArchitectural']);
+Route::get('/propertiesChatbot', [PropertyController::class, 'getProperties']);
+Route::get('/searchProperty', [PropertyController::class, 'index']);
 
+Route::get('/properties', [PropertyController::class, 'properties']);
 
 Route::get('/admin/getChatbot', [ChatbotController::class, 'index']);
 Route::post('/admin/addChatbot', [ChatbotController::class, 'addChatbot']);
@@ -54,7 +57,7 @@ Route::post('/companycode/{code}', [CompanyCodeController::class, 'storeCode']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);    
 
-Route::get('/properties', [PropertyController::class, 'index']);
+
 
 Route::get('/facilities/id/{id}', [BuildingFeatureController::class, 'getFacilitiesbyID']);
 Route::get('/buildings/id/{id}', [BuildingController::class, 'getBuildingById']);
@@ -64,12 +67,10 @@ Route::get('/property/id/{id}', [PropertyController::class, 'showById']);
 Route::get('/allproperty', [PropertyController::class, 'properties']);
 
 Route::get('/buildingfeatures', [BuildingFeatureController::class, 'index']);
-Route::get('/locations', [LocationController::class, 'index']);
+Route::get('/locations', [PropertyController::class, 'getAllLocations']);
 
 Route::get('/searchlocation', [LocationController::class, 'search']);
-Route::get('/api/properties', function () {
-    return Http::get('https://localhost:8000/properties');
-});
+
 
 // Contact Us
 Route::post('/contact', [ContactController::class, 'store']);
