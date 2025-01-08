@@ -9,6 +9,35 @@
     class PropertyController extends Controller
 
         {
+            
+public function getProperties(Request $request)
+{
+    $location = $request->query('location');
+    $architectural = $request->query('architectural');
+    $unit = $request->query('unit');
+
+    // Start building the query
+    $propertiesQuery = Property::query();
+
+    // Apply filters only if values are provided
+    if ($location) {
+        $propertiesQuery->where('location', $location);
+    }
+
+    if ($architectural) {
+        $propertiesQuery->where('architectural_theme', $architectural);
+    }
+
+    if ($unit) { // You may want to handle "N/A" specifically
+        $propertiesQuery->where('units', $unit);
+    }
+
+    // Fetch the results
+    $properties = $propertiesQuery->get(['id','name', 'location', 'specific_location', 'land_area', 'price_range', 'units']);
+
+    return response()->json($properties);
+}
+
 public function getAllLocations()
 {
     // Example with query builder for more control
@@ -113,62 +142,54 @@ public function getAllArchitectural()
 
         // Check if the property already exists
    
-     
-        public function index(Request $request)
+    public function index(Request $request)
 {
     // Get query parameters
     $filter = $request->query('filter');
     $search = $request->query('search');
 
+    // Check if the filter and search are provided
+    if (!$filter || !$search) {
+        return response()->json([
+            'message' => 'Filter or search value missing',
+        ], 400);
+    }
+
     // Start the query for properties
     $properties = Property::query();
 
-    // Check if both filter and search are provided
-    if ($filter && $search) {
-        // Ensure filter is a valid column name to prevent SQL injection
-        $validFilters = ['name',
-            'status',
-            'location',
-            'specific_location',
-            'price_range',
-            'units',
-            'land_area',
-            'development_type',
-            'architectural_theme',]; // Adjust with your actual fields
-        if (in_array($filter, $validFilters)) {
-            $properties->where($filter, 'like', "%{$search}%");
-        }
+    // Ensure filter is a valid column name to prevent SQL injection
+    $validFilters = [
+        'name',
+        'status',
+        'location',
+        'specific_location',
+        'price_range',
+        'units',
+        'land_area',
+        'development_type',
+        'architectural_theme',
+    ];
 
-        // Log the request data for debugging
-        Log::info('Received lat: ' . $request->lat);
-        Log::info('Received lng: ' . $request->lng);
-        Log::info('Request Data:', $request->all());
-
-        // Create a new property record (without saving files yet)
-        $property = Property::create([
-            'key' => $request->key,
-            'name' => $request->name,
-            'status' => $request->status,
-            'location' => $request->location,
-            'lat' => (float) $request->lat,   // Cast to float
-            'lng' => (float) $request->lng,         // Ensure lng is passed
-            'specific_location' => $request->specific_location,
-            'price_range' => $request->price_range,
-            'units' => $request->units,
-            'land_area' => $request->land_area,
-            'development_type' => $request->development_type,
-            'architectural_theme' => $request->architectural_theme,
-            'path' => $pathFilePath,
-            'view' => $viewFilePath,
-        ]);
-
-        // Return success response
+    // Only apply the filter if it's valid
+    if (in_array($filter, $validFilters)) {
+        $properties->where($filter, 'like', "%{$search}%");
+    } else {
         return response()->json([
-            'message' => 'Property created successfully',
-            'property' => $property,
-        ], 201);
+            'message' => 'Invalid filter provided',
+        ], 400);
     }
+
+    // Execute the query and get the results
+    $properties = $properties->get();
+
+    // Return the results in the response
+    return response()->json([
+        'properties' => $properties,
+    ]);
 }
+
+
     public function show($slug)
     {
         // Assuming you have a Property model that fetches the properties
