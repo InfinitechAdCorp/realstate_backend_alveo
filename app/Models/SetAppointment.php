@@ -20,4 +20,9 @@ class SetAppointment extends Model
         'message',
         'status',
     ];
+     protected $casts = [
+    'datetime' => 'datetime', // Treat 'datetime' as a Carbon instance
+];
+
+
 }

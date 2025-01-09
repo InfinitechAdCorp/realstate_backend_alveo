@@ -30,7 +30,7 @@ Route::get('/propertiesChatbot', [PropertyController::class, 'getProperties']);
 Route::get('/searchProperty', [PropertyController::class, 'index']);
 
 Route::get('/properties', [PropertyController::class, 'properties']);
-
+Route::post('/appointments', [SetAppointmentController::class, 'request']);
 Route::get('/admin/getChatbot', [ChatbotController::class, 'index']);
 Route::post('/admin/addChatbot', [ChatbotController::class, 'addChatbot']);
 Route::delete('/admin/deleteChatbot/{id}', [ChatbotController::class, 'deleteChatbot']);
