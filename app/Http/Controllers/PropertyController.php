@@ -1,103 +1,90 @@
 <?php
 
 
-    namespace App\Http\Controllers;
-    use Illuminate\Http\JsonResponse; // Ensure this is imported at the top
-    use Illuminate\Support\Facades\Log;
-    use App\Models\Property;
-    use Illuminate\Http\Request;
-    class PropertyController extends Controller
+namespace App\Http\Controllers;
 
-        {
-            
-public function getProperties(Request $request)
+use Illuminate\Http\JsonResponse; // Ensure this is imported at the top
+use Illuminate\Support\Facades\Log;
+use App\Models\Property;
+use Illuminate\Http\Request;
+
+class PropertyController extends Controller
+
 {
-    $location = $request->query('location');
-    $architectural = $request->query('architectural');
-    $unit = $request->query('unit');
 
-    // Start building the query
-    $propertiesQuery = Property::query();
+    public function getProperties(Request $request)
+    {
+        $location = $request->query('location');
+        $architectural = $request->query('architectural');
+        $unit = $request->query('unit');
 
-    // Apply filters only if values are provided
-    if ($location) {
-        $propertiesQuery->where('location', $location);
+        // Start building the query
+        $propertiesQuery = Property::query();
+
+        // Apply filters only if values are provided
+        if ($location) {
+            $propertiesQuery->where('location', $location);
+        }
+
+        if ($architectural) {
+            $propertiesQuery->where('architectural_theme', $architectural);
+        }
+
+        if ($unit) { // You may want to handle "N/A" specifically
+            $propertiesQuery->where('units', $unit);
+        }
+
+        // Fetch the results
+        $properties = $propertiesQuery->get(['id', 'name', 'location', 'specific_location', 'land_area', 'price_range', 'units']);
+
+        return response()->json($properties);
     }
 
-    if ($architectural) {
-        $propertiesQuery->where('architectural_theme', $architectural);
+    public function getAllLocations()
+    {
+        // Example with query builder for more control
+        $locations = Property::select('location')->distinct()->get();
+
+        return response()->json($locations);
     }
+    public function getAllArchitectural()
+    {
+        // Example with query builder for more control
+        $locations = Property::select('architectural_theme')->distinct()->get();
 
-    if ($unit) { // You may want to handle "N/A" specifically
-        $propertiesQuery->where('units', $unit);
+        return response()->json($locations);
     }
+    public function store(Request $request)
+    {
+        // Validate incoming request, including file validation
+        $request->validate([
+            'key' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'status' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'lat' => 'required|numeric',
+            'lng' => 'required|numeric',
+            'specific_location' => 'required|string|max:255',
+            'price_range' => 'required|string|max:255',
+            'units' => 'required|string|max:255',
+            'land_area' => 'required|string|max:255',
+            'development_type' => 'required|string|max:255',
+            'architectural_theme' => 'required|string|max:255',
+            'path'  => 'nullable|image|max:2048',
+            'view' => 'nullable|image|max:2048',
+        ]);
 
-    // Fetch the results
-    $properties = $propertiesQuery->get(['id','name', 'location', 'specific_location', 'land_area', 'price_range', 'units']);
+        // Generate a folder name based on the property name or a unique identifier
+        $folderName = strtolower(str_replace(' ', '_', $request->name));
 
-    return response()->json($properties);
-}
+        // Get the path where the files will be stored (directly in public/property)
+        $storagePath = public_path('property/' . $folderName);
 
-public function getAllLocations()
-{
-    // Example with query builder for more control
-    $locations = Property::select('location')->distinct()->get();
+        // Check if the folder exists, if not, create it
+        if (!file_exists($storagePath)) {
+            mkdir($storagePath, 0777, true); // Create the folder and allow permissions
+        }
 
-    return response()->json($locations);
-}
-public function getAllArchitectural()
-{
-    // Example with query builder for more control
-    $locations = Property::select('architectural_theme')->distinct()->get();
-
-    return response()->json($locations);
-}
- public function store(Request $request)
-{
-    // Validate incoming request, including file validation
-    $request->validate([
-        'key' => 'required|string|max:255',
-        'name' => 'required|string|max:255',
-        'status' => 'required|string|max:255',
-        'location' => 'required|string|max:255',
-        'lat' => 'required|numeric',
-        'lng' => 'required|numeric',
-        'specific_location' => 'required|string|max:255',
-        'price_range' => 'required|string|max:255',
-        'units' => 'required|string|max:255',
-        'land_area' => 'required|string|max:255',
-        'development_type' => 'required|string|max:255',
-        'architectural_theme' => 'required|string|max:255',
-        'path'  => 'nullable|image|max:2048',
-        'view' => 'nullable|image|max:2048',
-    ]);
-
-    // Generate a folder name based on the property name or a unique identifier
-    $folderName = strtolower(str_replace(' ', '_', $request->name));
-
-    // Get the path where the files will be stored (directly in public/property)
-    $storagePath = public_path('property/' . $folderName);
-
-    // Check if the folder exists, if not, create it
-    if (!file_exists($storagePath)) {
-        mkdir($storagePath, 0777, true); // Create the folder and allow permissions
-    }
-
-    // Check and handle 'path' file upload
-    if ($request->hasFile('path')) {
-        $pathFile = $request->file('path');
-        $pathFileName = time() . '_' . $pathFile->getClientOriginalName();  // Ensure unique file name
-        $pathFilePath = 'property/' . $folderName . '/' . $pathFileName;  // Store path relative to 'public' directory
-        $pathFile->move($storagePath, $pathFileName); // Move the file to the folder
-    }
-
-    // Check and handle 'view' file upload
-    if ($request->hasFile('view')) {
-        $viewFile = $request->file('view');
-        $viewFileName = time() . '_' . $viewFile->getClientOriginalName();  // Ensure unique file name
-        $viewFilePath = 'property/' . $folderName . '/' . $viewFileName;  // Store path relative to 'public' directory
-        $viewFile->move($storagePath, $viewFileName); // Move the file to the folder
-    }
         // Initialize file paths
         $pathFilePath = null;
         $viewFilePath = null;
@@ -106,88 +93,95 @@ public function getAllArchitectural()
         if ($request->hasFile('path')) {
             $pathFile = $request->file('path');
             $pathFileName = time() . '_' . $pathFile->getClientOriginalName();  // Ensure unique file name
-            $pathFilePath = 'assets/' . $folderName . '/' . $pathFileName;
+            $pathFilePath = 'property/' . $folderName . '/' . $pathFileName;  // Store path relative to 'public' directory
             $pathFile->move($storagePath, $pathFileName); // Move the file to the folder
         }
 
-    // Log the request data for debugging
-    Log::info('Received lat: ' . $request->lat);
-    Log::info('Received lng: ' . $request->lng);
-    Log::info('Request Data:', $request->all());
+        // Check and handle 'view' file upload
+        if ($request->hasFile('view')) {
+            $viewFile = $request->file('view');
+            $viewFileName = time() . '_' . $viewFile->getClientOriginalName();  // Ensure unique file name
+            $viewFilePath = 'property/' . $folderName . '/' . $viewFileName;  // Store path relative to 'public' directory
+            $viewFile->move($storagePath, $viewFileName); // Move the file to the folder
+        }
 
-    // Create a new property record
-    $property = Property::create([
-        'key' => $request->key,
-        'name' => $request->name,
-        'status' => $request->status,
-        'location' => $request->location,
-        'lat' => (float) $request->lat,   // Cast to float
-        'lng' => (float) $request->lng,   // Ensure lng is passed
-        'specific_location' => $request->specific_location,
-        'price_range' => $request->price_range,
-        'units' => $request->units,
-        'land_area' => $request->land_area,
-        'development_type' => $request->development_type,
-        'architectural_theme' => $request->architectural_theme,
-        'path' => $pathFilePath,  // Save relative file path
-        'view' => $viewFilePath,  // Save relative file path
-    ]);
+        // Log the request data for debugging
+        Log::info('Received lat: ' . $request->lat);
+        Log::info('Received lng: ' . $request->lng);
+        Log::info('Request Data:', $request->all());
 
-    // Return success response
-    return response()->json([
-        'message' => 'Property created successfully',
-        'property' => $property,
-    ], 201);
-}
+        // Create a new property record
+        $property = Property::create([
+            'key' => $request->key,
+            'name' => $request->name,
+            'status' => $request->status,
+            'location' => $request->location,
+            'lat' => (float) $request->lat,   // Cast to float
+            'lng' => (float) $request->lng,   // Ensure lng is passed
+            'specific_location' => $request->specific_location,
+            'price_range' => $request->price_range,
+            'units' => $request->units,
+            'land_area' => $request->land_area,
+            'development_type' => $request->development_type,
+            'architectural_theme' => $request->architectural_theme,
+            'path' => $pathFilePath,  // Save relative file path
+            'view' => $viewFilePath,  // Save relative file path
+        ]);
 
-        // Check if the property already exists
-   
+        // Return success response
+        return response()->json([
+            'message' => 'Property created successfully',
+            'property' => $property,
+        ], 201);
+    }
+    // Check if the property already exists
+
     public function index(Request $request)
-{
-    // Get query parameters
-    $filter = $request->query('filter');
-    $search = $request->query('search');
+    {
+        // Get query parameters
+        $filter = $request->query('filter');
+        $search = $request->query('search');
 
-    // Check if the filter and search are provided
-    if (!$filter || !$search) {
+        // Check if the filter and search are provided
+        if (!$filter || !$search) {
+            return response()->json([
+                'message' => 'Filter or search value missing',
+            ], 400);
+        }
+
+        // Start the query for properties
+        $properties = Property::query();
+
+        // Ensure filter is a valid column name to prevent SQL injection
+        $validFilters = [
+            'name',
+            'status',
+            'location',
+            'specific_location',
+            'price_range',
+            'units',
+            'land_area',
+            'development_type',
+            'architectural_theme',
+        ];
+
+        // Only apply the filter if it's valid
+        if (in_array($filter, $validFilters)) {
+            $properties->where($filter, 'like', "%{$search}%");
+        } else {
+            return response()->json([
+                'message' => 'Invalid filter provided',
+            ], 400);
+        }
+
+        // Execute the query and get the results
+        $properties = $properties->get();
+
+        // Return the results in the response
         return response()->json([
-            'message' => 'Filter or search value missing',
-        ], 400);
+            'properties' => $properties,
+        ]);
     }
-
-    // Start the query for properties
-    $properties = Property::query();
-
-    // Ensure filter is a valid column name to prevent SQL injection
-    $validFilters = [
-        'name',
-        'status',
-        'location',
-        'specific_location',
-        'price_range',
-        'units',
-        'land_area',
-        'development_type',
-        'architectural_theme',
-    ];
-
-    // Only apply the filter if it's valid
-    if (in_array($filter, $validFilters)) {
-        $properties->where($filter, 'like', "%{$search}%");
-    } else {
-        return response()->json([
-            'message' => 'Invalid filter provided',
-        ], 400);
-    }
-
-    // Execute the query and get the results
-    $properties = $properties->get();
-
-    // Return the results in the response
-    return response()->json([
-        'properties' => $properties,
-    ]);
-}
 
 
     public function show($slug)
@@ -266,5 +260,4 @@ public function getAllArchitectural()
 
         return response()->json(['message' => 'Properties deleted successfully']);
     }
-    
 }
