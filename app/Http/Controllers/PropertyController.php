@@ -83,6 +83,10 @@ public function getAllArchitectural()
         mkdir($storagePath, 0777, true); // Create the folder and allow permissions
     }
 
+    // Initialize file paths
+    $pathFilePath = null;
+    $viewFilePath = null;
+
     // Check and handle 'path' file upload
     if ($request->hasFile('path')) {
         $pathFile = $request->file('path');
@@ -98,17 +102,6 @@ public function getAllArchitectural()
         $viewFilePath = 'property/' . $folderName . '/' . $viewFileName;  // Store path relative to 'public' directory
         $viewFile->move($storagePath, $viewFileName); // Move the file to the folder
     }
-        // Initialize file paths
-        $pathFilePath = null;
-        $viewFilePath = null;
-
-        // Check and handle 'path' file upload
-        if ($request->hasFile('path')) {
-            $pathFile = $request->file('path');
-            $pathFileName = time() . '_' . $pathFile->getClientOriginalName();  // Ensure unique file name
-            $pathFilePath = 'assets/' . $folderName . '/' . $pathFileName;
-            $pathFile->move($storagePath, $pathFileName); // Move the file to the folder
-        }
 
     // Log the request data for debugging
     Log::info('Received lat: ' . $request->lat);
@@ -141,8 +134,7 @@ public function getAllArchitectural()
 }
 
         // Check if the property already exists
-   
-    public function index(Request $request)
+public function index(Request $request)
 {
     // Get query parameters
     $filter = $request->query('filter');
@@ -155,10 +147,13 @@ public function getAllArchitectural()
         ], 400);
     }
 
+    // Split search term into individual words
+    $searchTerms = explode(' ', $search);
+
     // Start the query for properties
     $properties = Property::query();
 
-    // Ensure filter is a valid column name to prevent SQL injection
+    // Define the valid filters
     $validFilters = [
         'name',
         'status',
@@ -169,11 +164,36 @@ public function getAllArchitectural()
         'land_area',
         'development_type',
         'architectural_theme',
+        'features', // Adding features column to the valid filters
     ];
 
-    // Only apply the filter if it's valid
-    if (in_array($filter, $validFilters)) {
-        $properties->where($filter, 'like', "%{$search}%");
+    // If filter is "All", apply search across all fields and ensure all search terms match
+    if ($filter === 'All') {
+        foreach ($searchTerms as $term) {
+            // Use `where` to make sure each search term must match
+            $properties->where(function ($query) use ($term, $validFilters) {
+                foreach ($validFilters as $validFilter) {
+                    if ($validFilter === 'features') {
+                        // Searching within the "features" column (which is a JSON column)
+                        $query->orWhereJsonContains('features->name', $term);
+                    } else {
+                        // Normal column search
+                        $query->orWhere($validFilter, 'like', "%{$term}%");
+                    }
+                }
+            });
+        }
+    } elseif (in_array($filter, $validFilters)) {
+        // If filter is valid, apply search within that field and search across multiple words
+        foreach ($searchTerms as $term) {
+            if ($filter === 'features') {
+                // Searching within the "features" column (which is a JSON column)
+                $properties->orWhereJsonContains('features->name', $term);
+            } else {
+                // Normal column search for the specific filter field
+                $properties->orWhere($filter, 'like', "%{$term}%");
+            }
+        }
     } else {
         return response()->json([
             'message' => 'Invalid filter provided',
@@ -190,17 +210,26 @@ public function getAllArchitectural()
 }
 
 
-    public function show($slug)
-    {
-        // Assuming you have a Property model that fetches the properties
-        $property = Property::where('key', $slug)->get();
 
-        if (!$property) {
-            return response()->json(['message' => 'Property not found'], 404);
-        }
+public function show($slug)
+{
+    // Normalize the slug by removing spaces and converting to lowercase
+    $normalizedSlug = strtolower(preg_replace('/\s+/', '', $slug));
 
-        return response()->json($property);
+    // Find the properties by the normalized key (remove spaces and convert to lowercase)
+    $properties = Property::whereRaw('LOWER(REPLACE(`key`, " ", "")) = LOWER(REPLACE(?, " ", ""))', [$normalizedSlug])
+                        ->get(); // Use get() instead of first()
+
+    // If no properties are found, return a 404 response
+    if ($properties->isEmpty()) {
+        return response()->json(['message' => 'Property not found'], 404);
     }
+
+    // Return the properties data as a JSON response
+    return response()->json($properties);
+}
+
+
     public function countlocations(): JsonResponse
     {
         // Count unique locations

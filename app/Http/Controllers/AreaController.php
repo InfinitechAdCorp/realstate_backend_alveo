@@ -15,13 +15,13 @@ use Illuminate\Http\Request;
 public function show($slug)
 {
     // Normalize the slug by removing spaces and converting to lowercase
-    $normalizedSlug = str_replace(' ', '', strtolower($slug));
+    $normalizedSlug = strtolower(preg_replace('/\s+/', '', $slug));
 
-    // Find the area by the normalized area_name (remove spaces and convert to lowercase)
-    $area = Area::whereRaw('LOWER(REPLACE(area_name, " ", "")) = ?', [$normalizedSlug])->first();
+    // Find the area by the normalized name (remove spaces and convert to lowercase)
+    $area = Area::whereRaw('LOWER(REPLACE(area_name, " ", "")) = ?', [$normalizedSlug])->get();
 
     // If no area is found, return a 404 response
-    if (!$area) {
+    if ($area->isEmpty()) {
         return response()->json([
             'message' => 'Area not found',
         ], 404);
@@ -32,6 +32,7 @@ public function show($slug)
         'data' => $area,
     ], 200);
 }
+
 
 
 
