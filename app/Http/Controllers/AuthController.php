@@ -17,98 +17,63 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+
 class AuthController extends Controller
 {
-   public function login(Request $request)
-    {
-        // Validate incoming request
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+public function login(Request $request)
+{
+    // Validate incoming request
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        // Find user by email
-        $user = User::where('email', $request->email)->first();
+    // Find user by email
+    $user = User::where('email', $request->email)->first();
 
-        // If user not found or password doesn't match, return an error
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['error' => 'Invalid email or password.'], 401);
-        }
-
-        // If credentials are correct, return success response
-        return response()->json(['message' => 'Login successful.']);
+    // If user not found or password doesn't match, return an error
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return response()->json(['error' => 'Invalid email or password.'], 401);
     }
+
+    // If credentials are correct, return success response
+    return response()->json(['message' => 'Login successful.']);
+}
 
 // In your AuthController or another relevant controller
 
 
-
-   public function register(Request $request)
-    {
-        // Validate input
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()
-            ], 400);
-        }
-
-        // Hash password and store user
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),  // Hash the password
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Account created successfully!',
-            'user' => $user,
-        ], 201);
-    }
- public function storeCompanyCode($user, $password, $status, $code, $is_active)
+public function register(Request $request)
 {
-    // Validate the status to be 'register' or 'login'
-    if (!in_array(strtolower($status), ['register', 'login'])) {
-        return response()->json(['error' => 'Invalid status. Only "register" or "login" are allowed.'], 400);
+    // Validate input
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8',  // Removed the 'confirmed' rule
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $validator->errors()
+        ], 400);
     }
 
-    // Convert is_active to boolean
-    $is_active = filter_var($is_active, FILTER_VALIDATE_BOOLEAN);
+    // Hash password and store user
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),  // Hash the password
+    ]);
 
-    try {
-        // Verify if the user exists and the password matches
-        $admin = Admin::where('user', $user)->first();
-
-        // Check if the user exists and password is correct
-        if (!$admin || !Hash::check($password, $admin->password)) {
-            return response()->json(['error' => 'Unauthorized. Invalid user or password.'], 401);
-        }
-
-        // Use updateOrInsert to either update or insert based on the status
-        DB::table('companycode')->updateOrInsert(
-            [
-                'status' => strtolower($status), // Ensure status is in lowercase
-            ],
-            [
-                'code' => $code,
-                'is_active' => $is_active,
-                'updated_at' => now(),
-            ]
-        );
-
-        return response()->json(['message' => 'Company code added or updated successfully.'], 200);
-
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Error: ' . $e->getMessage()], 400);
-    }
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Account created successfully!',
+        'user' => $user,
+    ], 201);
 }
+
+
     public function logout()
         {
             // Log the user out

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string("area_name");
             $table->string("title");
-            $table->string("description");
+            $table->text("description");
             $table->string("image")->nullable();
             $table->timestamps();
         });

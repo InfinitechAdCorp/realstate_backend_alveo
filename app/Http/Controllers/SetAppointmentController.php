@@ -8,9 +8,58 @@ use App\Models\SetAppointment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class SetAppointmentController extends Controller
 {
+
+public function request(Request $request)
+{
+    // Log incoming request (optional for debugging)
+    \Log::info('Appointment Request:', $request->all());
+
+    try {
+        // Validate the request
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'required|string|max:15',
+            'appointmentDate' => 'required|date', // Ensure it's a valid date
+            'unit' => 'required|string|max:255',
+            'reason' => 'required|string|max:255'
+        ]);
+
+        // Store the appointment
+        $appointment = SetAppointment::create([
+            'fullname' => $request->name,  // Ensure 'fullname' is set
+            'email' => $request->email,
+            'number' => $request->phone,
+            'datetime' => \Carbon\Carbon::parse($request->appointmentDate), // Convert to DateTime
+            'reason' => $request->reason,
+            'property' => $request->unit,  // Save unit as 'property'
+            'message' => $request->message,
+            'status' => 'PENDING'
+        ]);
+
+        // Return success response
+        return response()->json([
+            'message' => 'Appointment saved successfully',
+            'appointment' => $appointment,
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Catch validation errors and return them
+        return response()->json([
+            'error' => 'Validation failed',
+            'message' => $e->errors(),
+        ], 422);
+    }
+}
+
+
+
+
+
     public function store(Request $request)
     {
         // Validate the incoming request data
