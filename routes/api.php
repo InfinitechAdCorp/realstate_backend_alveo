@@ -90,7 +90,7 @@ Route::get('/properties/name/{name}', [PropertyController::class, 'getPropertyBy
 // Define the API route for buildings
 
 // In your routes/api.php
-Route::get('/blog/{slug}', [PropertyController::class, 'show']);
+    Route::get('/blog/{slug}', [PropertyController::class, 'show']);
 Route::get('/getbuildings', [BuildingController::class, 'index']);
 
 // routes/api.php
