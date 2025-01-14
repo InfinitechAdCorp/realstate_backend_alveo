@@ -8,9 +8,25 @@ use App\Models\SubmitProperty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-
+use Illuminate\Support\Facades\DB;
 class SubmitPropertyController extends Controller
 {
+        public function countPropertiesMonthly()
+    {
+        // Get count of properties grouped by year and month
+        $monthlyCounts = SubmitProperty::select(
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy(DB::raw('YEAR(created_at)'), DB::raw('MONTH(created_at)'))
+            ->orderBy(DB::raw('YEAR(created_at)'), 'desc')
+            ->orderBy(DB::raw('MONTH(created_at)'), 'desc')
+            ->get();
+
+        // Return the result as JSON
+        return response()->json($monthlyCounts);
+    }
 public function store(Request $request)
 {
     // Validate incoming request data

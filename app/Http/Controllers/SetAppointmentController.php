@@ -12,6 +12,25 @@ use Carbon\Carbon;
 
 class SetAppointmentController extends Controller
 {
+    public function countRequestViewing()
+{
+    $requestViewing = SetAppointment::where('reason', 'Request Viewing') // Filter by reason
+        ->groupBy('property') // Group by property
+        ->select('property', \DB::raw('count(*) as total')) // Count the number of requests per property
+        ->get();
+
+    return response()->json($requestViewing); // Return JSON response
+}
+
+public function countPropertyInquiry()
+{
+    $propertyInquiry = SetAppointment::where('reason', 'Property Inquiry') // Filter by reason
+        ->groupBy('property') // Group by property
+        ->select('property', \DB::raw('count(*) as total')) // Count the number of requests per property
+        ->get();
+
+    return response()->json($propertyInquiry); // Return JSON response
+}
 
 public function request(Request $request)
 {

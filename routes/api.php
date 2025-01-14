@@ -24,6 +24,11 @@ use App\Http\Controllers\SubmitPropertyController;
 use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Http;
 
+Route::get('/count-properties-monthly', [SubmitPropertyController::class, 'countPropertiesMonthly']);
+Route::get('/count-request-viewing', [SetAppointmentController::class, 'countRequestViewing']);
+Route::get('/count-property-inquiry', [SetAppointmentController::class, 'countPropertyInquiry']);
+
+
 Route::get('/getlocations', [PropertyController::class, 'getAllLocations']);
 Route::get('/getArchitectural', [PropertyController::class, 'getAllArchitectural']);
 Route::get('/propertiesChatbot', [PropertyController::class, 'getProperties']);
@@ -55,7 +60,11 @@ Route::get('/admin/{user}/{password}/{status}/{code}/{is_active}', [AuthControll
 // Route for registering company code via URL
 Route::post('/companycode/{code}', [CompanyCodeController::class, 'storeCode']);
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);    
+Route::post('/login', [AuthController::class, 'login']);
+ 
+Route::get('/csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+});
 
 
 
