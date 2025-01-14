@@ -17,6 +17,9 @@ return [
         'guard' => 'web',
         'passwords' => 'users',
     ],
+// config/auth.php
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -34,13 +37,18 @@ return [
     | Supported: "session"
     |
     */
-
-    'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+'guards' => [
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
     ],
+
+    'api' => [
+        'driver' => 'sanctum', // Ensure this is set to 'sanctum' if you're using Sanctum for API authentication
+        'provider' => 'users',
+        'hash' => false,
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------

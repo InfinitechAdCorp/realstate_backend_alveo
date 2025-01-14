@@ -20,6 +20,35 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
+public function logout(Request $request)
+{
+    $user = Auth::user();
+    $user->tokens->each(function ($token) {
+        $token->delete();
+    });
+
+    return response()->json(['message' => 'Logged out successfully.']);
+}
+public function logoutAll(Request $request)
+{
+    // Retrieve the authenticated user
+    $user = $request->user();
+
+    // Check if user is authenticated
+    if (!$user) {
+        return response()->json(['error' => 'User not authenticated.'], 401);
+    }
+
+    // Revoke/delete all existing tokens for this user (logs out from all sessions)
+    $user->tokens->each(function ($token) {
+        $token->delete();
+    });
+
+    // Return a success message
+    return response()->json([
+        'message' => 'All sessions logged out successfully.',
+    ]);
+}
 
 public function login(Request $request)
 {
@@ -47,6 +76,7 @@ public function login(Request $request)
     return response()->json([
         'message' => 'Login successful.',
         'token' => $token,
+         'name' => $user->name,
     ]);
 }
 
@@ -85,16 +115,5 @@ public function register(Request $request)
 }
 
 
-    public function logout()
-        {
-            // Log the user out
-            Auth::logout();
 
-            // Invalidate the session and regenerate the session ID
-            session()->invalidate();
-            session()->regenerateToken();
-
-            // Redirect the user to a desired page (e.g., login page)
-            return redirect()->route('login'); // Or any other route you wish
-        }
 }

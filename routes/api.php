@@ -23,16 +23,36 @@ use App\Http\Controllers\StatusController;
 use App\Http\Controllers\SubmitPropertyController;
 use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Http;
+ 
+// routes/api.php
 
-Route::get('/count-properties-monthly', [SubmitPropertyController::class, 'countPropertiesMonthly']);
-Route::get('/count-request-viewing', [SetAppointmentController::class, 'countRequestViewing']);
-Route::get('/count-property-inquiry', [SetAppointmentController::class, 'countPropertyInquiry']);
+// In routes/api.php
 
+Route::middleware(['auth-token'])->group(function () {
+    Route::get('/admin/countproperties', [PropertyController::class, 'countProperties']);
+    Route::get('/admin/countotherbuildings', [BuildingController::class, 'countOtherBuildings']);
+    Route::get('/admin/countcondominiums', [BuildingController::class, 'countCondominiums']);
+    Route::get('/admin/countlocations', [PropertyController::class, 'countLocations']);
+    Route::get('/count-properties-monthly', [SubmitPropertyController::class, 'countPropertiesMonthly']);
+    Route::get('/count-request-viewing', [SetAppointmentController::class, 'countRequestViewing']);
+    Route::get('/count-property-inquiry', [SetAppointmentController::class, 'countPropertyInquiry']);
+});
+// Route::middleware(['web'])->get('/csrf-token', function () {
+//     return response()->json(['csrf_token' => csrf_token()]);
+// });
 
-Route::get('/getlocations', [PropertyController::class, 'getAllLocations']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->post('/logoutAll', [AuthController::class, 'logoutAll']);
+
+Route::get('/searchProperty', [PropertyController::class, 'index']);
+Route::get('/allproperty', [PropertyController::class, 'properties']);
+Route::get('/property/id/{id}', [PropertyController::class, 'showById']);
+
 Route::get('/getArchitectural', [PropertyController::class, 'getAllArchitectural']);
 Route::get('/propertiesChatbot', [PropertyController::class, 'getProperties']);
-Route::get('/searchProperty', [PropertyController::class, 'index']);
+
 
 Route::get('/properties', [PropertyController::class, 'properties']);
 Route::post('/appointments', [SetAppointmentController::class, 'request']);
@@ -59,12 +79,7 @@ Route::get('/roomplanner', [RoomPlannerController::class, 'index']);
 Route::get('/admin/{user}/{password}/{status}/{code}/{is_active}', [AuthController::class, 'storeCompanyCode']);
 // Route for registering company code via URL
 Route::post('/companycode/{code}', [CompanyCodeController::class, 'storeCode']);
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
- 
-Route::get('/csrf-token', function () {
-    return response()->json(['csrf_token' => csrf_token()]);
-});
+
 
 
 
@@ -72,8 +87,7 @@ Route::get('/facilities/id/{id}', [BuildingFeatureController::class, 'getFacilit
 Route::get('/buildings/id/{id}', [BuildingController::class, 'getBuildingById']);
 
 // Route to get property details by ID
-Route::get('/property/id/{id}', [PropertyController::class, 'showById']);
-Route::get('/allproperty', [PropertyController::class, 'properties']);
+
 
 Route::get('/buildingfeatures', [BuildingFeatureController::class, 'index']);
 Route::get('/locations', [PropertyController::class, 'getAllLocations']);
@@ -135,11 +149,6 @@ Route::post('/admin/addproperty', [PropertyController::class, 'store']);
 
 
 Route::post('/admin/upload', [FeatureController::class, 'uploadImage']);
-Route::get('/admin/countproperties', [PropertyController::class, 'countProperties']);
-Route::get('/admin/countotherbuildings', [BuildingController::class, 'countotherbuildings']);
-Route::get('/admin/countcondominiums', [BuildingController::class, 'countcondominiums']);
-Route::get('/admin/countlocations', [PropertyController::class, 'countlocations']);
-
 
 // Development Type
 Route::post('/admin/add-development-type', [DevelopmentTypeController::class, 'store']);
