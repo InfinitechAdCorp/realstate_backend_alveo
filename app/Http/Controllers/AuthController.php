@@ -17,9 +17,10 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-
+use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
+
 public function login(Request $request)
 {
     // Validate incoming request
@@ -36,9 +37,19 @@ public function login(Request $request)
         return response()->json(['error' => 'Invalid email or password.'], 401);
     }
 
-    // If credentials are correct, return success response
-    return response()->json(['message' => 'Login successful.']);
+    // Log user data for debugging (optional)
+    \Log::info('User logged in:', ['user' => $user]);
+
+    // Generate API token
+    $token = $user->createToken('AppName')->plainTextToken;
+
+    // Return a success response with the token
+    return response()->json([
+        'message' => 'Login successful.',
+        'token' => $token,
+    ]);
 }
+
 
 // In your AuthController or another relevant controller
 
