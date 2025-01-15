@@ -168,7 +168,7 @@ public function getAllArchitectural()
     ];
 
     // If filter is "All", apply search across all fields and ensure all search terms match
-    if ($filter === 'All') {
+    if ($filter === 'All' ||$filter === 'all' ) {
         foreach ($searchTerms as $term) {
             // Use `where` to make sure each search term must match
             $properties->where(function ($query) use ($term, $validFilters) {

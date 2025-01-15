@@ -36,6 +36,13 @@ Route::middleware(['auth-token'])->group(function () {
     Route::get('/count-properties-monthly', [SubmitPropertyController::class, 'countPropertiesMonthly']);
     Route::get('/count-request-viewing', [SetAppointmentController::class, 'countRequestViewing']);
     Route::get('/count-property-inquiry', [SetAppointmentController::class, 'countPropertyInquiry']);
+
+    Route::get('/admin/development-types', [DevelopmentTypeController::class, 'getAll']);
+    Route::get('/admin/area', [AreaController::class, 'getAll']);
+    Route::get('/admin/architectural-themes', [ArchitecturalThemeController::class, 'getAll']);
+Route::get('/admin/status', [StatusController::class, 'getAll']);
+
+
 });
 // Route::middleware(['web'])->get('/csrf-token', function () {
 //     return response()->json(['csrf_token' => csrf_token()]);
@@ -48,14 +55,28 @@ Route::middleware('auth:sanctum')->post('/logoutAll', [AuthController::class, 'l
 
 Route::get('/searchProperty', [PropertyController::class, 'index']);
 Route::get('/allproperty', [PropertyController::class, 'properties']);
+Route::get('/getbuildings', [BuildingController::class, 'index']);
 Route::get('/property/id/{id}', [PropertyController::class, 'showById']);
+Route::get('/facilities/id/{id}', [BuildingFeatureController::class, 'getFacilitiesbyID']);
+Route::get('/buildings/id/{id}', [BuildingController::class, 'getBuildingById']);
+Route::post('/appointments', [SetAppointmentController::class, 'request']);
+Route::post('/admin/submit-property', [SubmitPropertyController::class, 'store']);
+
+
 
 Route::get('/getArchitectural', [PropertyController::class, 'getAllArchitectural']);
 Route::get('/propertiesChatbot', [PropertyController::class, 'getProperties']);
 
 
+
+
+
+
+
+
+
 Route::get('/properties', [PropertyController::class, 'properties']);
-Route::post('/appointments', [SetAppointmentController::class, 'request']);
+
 Route::get('/admin/getChatbot', [ChatbotController::class, 'index']);
 Route::post('/admin/addChatbot', [ChatbotController::class, 'addChatbot']);
 Route::delete('/admin/deleteChatbot/{id}', [ChatbotController::class, 'deleteChatbot']);
@@ -82,9 +103,6 @@ Route::post('/companycode/{code}', [CompanyCodeController::class, 'storeCode']);
 
 
 
-
-Route::get('/facilities/id/{id}', [BuildingFeatureController::class, 'getFacilitiesbyID']);
-Route::get('/buildings/id/{id}', [BuildingController::class, 'getBuildingById']);
 
 // Route to get property details by ID
 
@@ -114,7 +132,7 @@ Route::get('/properties/name/{name}', [PropertyController::class, 'getPropertyBy
 
 // In your routes/api.php
     Route::get('/blog/{slug}', [PropertyController::class, 'show']);
-Route::get('/getbuildings', [BuildingController::class, 'index']);
+
 
 // routes/api.php
 
@@ -147,21 +165,20 @@ Route::post('/admin/addproperty', [PropertyController::class, 'store']);
 
 
 
-
 Route::post('/admin/upload', [FeatureController::class, 'uploadImage']);
 
 // Development Type
 Route::post('/admin/add-development-type', [DevelopmentTypeController::class, 'store']);
-Route::get('/admin/development-types', [DevelopmentTypeController::class, 'getAll']);
+
 // Architectural Theme
 Route::post('/admin/add-architectural-theme', [ArchitecturalThemeController::class, 'store']);
-Route::get('/admin/architectural-themes', [ArchitecturalThemeController::class, 'getAll']);
+
 // Architectural Theme
 Route::post('/admin/add-status', [StatusController::class, 'store']);
-Route::get('/admin/status', [StatusController::class, 'getAll']);
+
 // Area 
-Route::post('/admin/add-area', [AreaController::class, 'store']);
-Route::get('/admin/area', [AreaController::class, 'getAll']);
+
+
 Route::get('/areas', [AreaController::class, 'get']);
 Route::get('/areas/{slug}', [AreaController::class, 'show']);
 
@@ -170,6 +187,6 @@ Route::post('/set-appointment', [SetAppointmentController::class, 'store']);
 Route::post('/admin/appointment/accept', [SetAppointmentController::class, 'accept']);
 Route::get('/admin/appointments', [SetAppointmentController::class, 'getAll']);
 //Submit Property
-Route::post('/admin/submit-property', [SubmitPropertyController::class, 'store']);
+
 Route::get('/admin/submitted-properties', [SubmitPropertyController::class, 'getAll']);
 Route::post('/admin/submitted-properties/update', [SubmitPropertyController::class, 'update']);
