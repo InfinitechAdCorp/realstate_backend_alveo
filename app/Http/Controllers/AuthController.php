@@ -67,7 +67,7 @@ public function login(Request $request)
     }
 
     // Log user data for debugging (optional)
-    \Log::info('User logged in:', ['user' => $user]);
+    Log::info('User logged in:', ['user' => $user]);
 
     // Generate API token
     $token = $user->createToken('AppName')->plainTextToken;

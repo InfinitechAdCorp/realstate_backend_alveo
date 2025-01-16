@@ -66,7 +66,7 @@ Route::post('/admin/submit-property', [SubmitPropertyController::class, 'store']
 
 Route::get('/getArchitectural', [PropertyController::class, 'getAllArchitectural']);
 Route::get('/propertiesChatbot', [PropertyController::class, 'getProperties']);
-
+Route::post('/chatbot/get-answer', [ChatbotController::class, 'getAnswer']);
 
 
 
