@@ -49,8 +49,13 @@ class ChatbotController extends Controller
 
         $userMessage = $validated['message'];
 
-        //Match words
-        $matchedEntry = Chatbot::where('question', 'LIKE', "%{$userMessage}%")->first();
+        $words = explode(' ', $userMessage);
+
+        $pattern = implode('|', array_map(function ($word) {
+            return '\\b' . preg_quote($word, '/') . '\\b';
+        }, $words));
+
+        $matchedEntry = Chatbot::where('question', 'REGEXP', $pattern)->first();
 
         if ($matchedEntry) {
             // Return the matched answer
@@ -59,7 +64,7 @@ class ChatbotController extends Controller
                 'answer' => $matchedEntry->answer,
             ], 200);
         } else {
-            //if no data found
+            // If no match is found, return a not found status
             return response()->json([
                 'status' => 'not_found',
                 'answer' => 'Sorry, I could not find an answer to your question.',
