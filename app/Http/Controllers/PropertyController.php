@@ -61,16 +61,17 @@ public function getAllArchitectural()
         'name' => 'required|string|max:255',
         'status' => 'required|string|max:255',
         'location' => 'required|string|max:255',
-        'lat' => 'required|numeric',
-        'lng' => 'required|numeric',
+        'lat' => 'required|string',
+        'lng' => 'required|string',
         'specific_location' => 'required|string|max:255',
         'price_range' => 'required|string|max:255',
         'units' => 'required|string|max:255',
         'land_area' => 'required|string|max:255',
         'development_type' => 'required|string|max:255',
         'architectural_theme' => 'required|string|max:255',
-        'path'  => 'nullable|image|max:2048',
-        'view' => 'nullable|image|max:2048',
+      'path' => 'nullable|image|max:5120', // 5120 KB = 5 MB
+
+        'view' => 'nullable|image|max:5120',
     ]);
 
     // Generate a folder name based on the property name or a unique identifier
@@ -115,8 +116,8 @@ public function getAllArchitectural()
         'name' => $request->name,
         'status' => $request->status,
         'location' => $request->location,
-        'lat' => (float) $request->lat,   // Cast to float
-        'lng' => (float) $request->lng,   // Ensure lng is passed
+        'lat' =>  $request->lat,   // Cast to float
+        'lng' => $request->lng,   // Ensure lng is passed
         'specific_location' => $request->specific_location,
         'price_range' => $request->price_range,
         'units' => $request->units,

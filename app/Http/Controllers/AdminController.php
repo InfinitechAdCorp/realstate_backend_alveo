@@ -55,22 +55,49 @@ class AdminController extends Controller
 
         return response()->json(['message' => 'Buildings deleted successfully', 'deleted_count' => $deletedCount]);
     }
+public function deleteFeature(Request $request)
+{
+    // Validate the input
+    $request->validate(['id' => 'required|array']);
 
-    public function deleteFeature(Request $request)
-    {
-        $request->validate(['id' => 'required|array']);
+    // Log the property IDs being used for deletion
+    \Log::info('Attempting to delete features for property IDs:', $request->id);
 
-        // Log the property IDs being used for deletion
-        \Log::info('Attempting to delete features with property IDs:', $request->id);
+    // Iterate through each property ID and remove the features
+    $deletedCount = 0;
 
-        // Delete features based on property_id
-        $deletedCount = Property::whereIn('id', $request->id)->delete();
+    foreach ($request->id as $propertyId) {
+        // Find the property by its ID
+        $property = Property::find($propertyId);
 
-        // Log the number of deleted features
-        \Log::info('Number of features deleted:', [$deletedCount]);
+        if ($property) {
+            // Decode the existing features
+            $features = $property->features ? json_decode($property->features, true) : [];
 
-        return response()->json(['message' => 'Features deleted successfully', 'deleted_count' => $deletedCount]);
+            // Check if features exist and remove them
+            if (!empty($features)) {
+                // Remove the features (or a specific feature based on your logic)
+                $property->features = json_encode([]); // Set the features to an empty array
+
+                // Save the property after updating the features
+                $property->save();
+                $deletedCount++;
+            } else {
+                // Log a message if no features exist
+                \Log::info("No features found for property ID: $propertyId");
+            }
+        } else {
+            // Log if property is not found
+            \Log::warning("Property ID $propertyId not found.");
+        }
     }
+
+    // Log the number of deleted features
+    \Log::info('Number of features deleted:', [$deletedCount]);
+
+    // Return a response
+    return response()->json(['message' => 'Features deleted successfully', 'deleted_count' => $deletedCount]);
+}
 
 
     public function deleteFacility(Request $request)

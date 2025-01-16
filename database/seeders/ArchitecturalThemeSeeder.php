@@ -21,7 +21,6 @@ class ArchitecturalThemeSeeder extends Seeder
     ['name' => 'Asian Contemporary'],
     ['name' => 'N/A'],
     ['name' => 'Modern Tropical'],
-    ['name' => 'Modern-tropical'],
     ['name' => 'Neo-Asian Minimalist'],
     ['name' => 'Modern Artisanal'],
 ];
