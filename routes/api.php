@@ -43,7 +43,46 @@ Route::middleware(['auth-token'])->group(function () {
 Route::get('/admin/status', [StatusController::class, 'getAll']);
 
 
+Route::get('/admin/getChatbot', [ChatbotController::class, 'index']);
+
+
+Route::delete('/admin/deleteChatbot/{id}', [ChatbotController::class, 'deleteChatbot']);
+Route::delete('/admin/delete-development-type/{id}', [DevelopmentTypeController::class, 'delete']);
+Route::delete('/admin/delete-architectural-theme/{id}', [ArchitecturalThemeController::class, 'delete']);
+Route::delete('/admin/delete-status/{id}', [StatusController::class, 'delete']);
+Route::delete('/admin/delete-location/{id}', [AreaController::class, 'delete']);
+
+Route::post('/admin/add-development-type', [DevelopmentTypeController::class, 'store']);
+Route::post('/admin/add-architectural-theme', [ArchitecturalThemeController::class, 'store']);
+Route::post('/admin/add-status', [StatusController::class, 'store']);
+Route::post('/admin/add-area', [AreaController::class, 'store']);
+Route::post('/admin/addChatbot', [ChatbotController::class, 'addChatbot']);
+Route::post('/admin/addproperty', [PropertyController::class, 'store']);    
+
+Route::delete('/admin/deleteproperty', [AdminController::class, 'deleteProperty']);
+Route::delete('/admin/deletebuilding', [AdminController::class, 'deleteBuilding']);
+Route::delete('/admin/deletefeature', [AdminController::class, 'deleteFeature']);
+Route::delete('/admin/deletefacility', [AdminController::class, 'deleteFacility']);
+
+Route::post('/admin/update-properties', [AdminController::class, 'updateProperties']);
+Route::post('/admin/update-buildings', [AdminController::class, 'updateBuildings']);
+Route::post('/admin/update-features', [FeatureController::class, 'uploadImage']);
+Route::post('/admin/update-facilities', [AdminController::class, 'updateFacilities']);
+
+Route::post('/admin/addFacilities', [AdminController::class, 'addFacilities']);
+Route::post('/admin/addFeature', [FeatureController::class, 'addFeature']);
+Route::post('/admin/addBuildings', [BuildingController::class, 'addBuildings']);
+
+Route::get('/buildings/id/{id}', [BuildingController::class, 'getBuildingById']);
+Route::get('/facilities/id/{id}', [BuildingFeatureController::class, 'getFacilitiesbyID']);
+
+Route::get('/admin/properties', [PropertyController::class, 'properties']);
+Route::get('/admin/buildings', [BuildingController::class, 'buildings']);
+Route::get('/admin/facilities', [BuildingFeatureController::class, 'facilities']);
+Route::get('/admin/features', [PropertyController::class, 'features']);
 });
+
+Route::middleware('auth:sanctum')->post('/logoutAll', [AuthController::class, 'logoutAll']);
 // Route::middleware(['web'])->get('/csrf-token', function () {
 //     return response()->json(['csrf_token' => csrf_token()]);
 // });
@@ -51,50 +90,27 @@ Route::get('/admin/status', [StatusController::class, 'getAll']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->post('/logoutAll', [AuthController::class, 'logoutAll']);
 
 Route::get('/searchProperty', [PropertyController::class, 'index']);
 Route::get('/allproperty', [PropertyController::class, 'properties']);
 Route::get('/getbuildings', [BuildingController::class, 'index']);
 Route::get('/property/id/{id}', [PropertyController::class, 'showById']);
-Route::get('/facilities/id/{id}', [BuildingFeatureController::class, 'getFacilitiesbyID']);
-Route::get('/buildings/id/{id}', [BuildingController::class, 'getBuildingById']);
+Route::get('/facilities_user/id/{id}', [BuildingFeatureController::class, 'getFacilitiesbyID']);
+Route::get('/buildings_user/id/{id}', [BuildingController::class, 'getBuildingById']);
+
+Route::get('/properties', [PropertyController::class, 'properties']);
+
 Route::post('/appointments', [SetAppointmentController::class, 'request']);
 Route::post('/admin/submit-property', [SubmitPropertyController::class, 'store']);
-
-
-
 Route::get('/getArchitectural', [PropertyController::class, 'getAllArchitectural']);
 Route::get('/propertiesChatbot', [PropertyController::class, 'getProperties']);
 Route::post('/chatbot/get-answer', [ChatbotController::class, 'getAnswer']);
 
 
-
-
-
-
-
-
-Route::get('/properties', [PropertyController::class, 'properties']);
-
-Route::get('/admin/getChatbot', [ChatbotController::class, 'index']);
-Route::post('/admin/addChatbot', [ChatbotController::class, 'addChatbot']);
-Route::delete('/admin/deleteChatbot/{id}', [ChatbotController::class, 'deleteChatbot']);
-
-Route::delete('/admin/delete-development-type/{id}', [DevelopmentTypeController::class, 'delete']);
-Route::delete('/admin/delete-architectural-theme/{id}', [ArchitecturalThemeController::class, 'delete']);
-Route::delete('/admin/delete-status/{id}', [StatusController::class, 'delete']);
-Route::delete('/admin/delete-location/{id}', [AreaController::class, 'delete']);
-
-Route::get('/admin/update/{user}/{password}', [AdminController::class, 'updateAdminFromUrl']);
-Route::get('/admin/create/{user}/{password}', [AdminController::class, 'storeAdminFromUrl']);
-
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 // routes/api.php
-
-
 Route::get('/roomplanner', [RoomPlannerController::class, 'index']);
 // routes/api.php
 Route::get('/admin/{user}/{password}/{status}/{code}/{is_active}', [AuthController::class, 'storeCompanyCode']);
@@ -117,10 +133,7 @@ Route::get('/searchlocation', [LocationController::class, 'search']);
 Route::post('/contact', [ContactController::class, 'store']);
 
 
-Route::get('/admin/properties', [PropertyController::class, 'properties']);
-Route::get('/admin/buildings', [BuildingController::class, 'buildings']);
-Route::get('/admin/facilities', [BuildingFeatureController::class, 'facilities']);
-Route::get('/admin/features', [PropertyController::class, 'features']);
+
 
 
 Route::get('/buildings', [BuildingController::class, 'getBuildingsByProperty']);
@@ -136,45 +149,19 @@ Route::get('/properties/name/{name}', [PropertyController::class, 'getPropertyBy
 
 // routes/api.php
 
-Route::delete('/admin/deletelocation', [AdminController::class, 'deleteLocation']);
-Route::delete('/admin/deleteproperty', [AdminController::class, 'deleteProperty']);
-Route::delete('/admin/deletebuilding', [AdminController::class, 'deleteBuilding']);
-Route::delete('/admin/deletefeature', [AdminController::class, 'deleteFeature']);
-Route::delete('/admin/deletefacility', [AdminController::class, 'deleteFacility']);
+
 
 // Add these routes to your api.php file
 
 Route::post('/admin/update-location', [AdminController::class, 'updateLocation']);
 Route::post('/admin/update-properties', [AdminController::class, 'updateProperties']);
-Route::post('/admin/update-buildings', [AdminController::class, 'updateBuildings']);
-Route::post('/admin/update-features', [FeatureController::class, 'uploadImage']);
-Route::post('/admin/update-facilities', [AdminController::class, 'updateFacilities']);
+
 
 Route::post('/admin/addlocation', [LocationController::class, 'storeLocation']);
 
-Route::post('/admin/add-properties', [AdminController::class, 'addProperties']);
-Route::post('/admin/add-buildings', [AdminController::class, 'addBuildings']);
-Route::post('/admin/add-features', [AdminController::class, 'addFeatures']);
-Route::post('/admin/add-facilities', [AdminController::class, 'addFacilities']);
-
-Route::post('/admin/addFacilities', [AdminController::class, 'addFacilities']);
-Route::post('/admin/addFeature', [FeatureController::class, 'addFeature']);
-Route::post('/admin/addBuildings', [BuildingController::class, 'addBuildings']);
-
-Route::post('/admin/addproperty', [PropertyController::class, 'store']);    
-
-
-
-Route::post('/admin/upload', [FeatureController::class, 'uploadImage']);
 
 // Development Type
-Route::post('/admin/add-development-type', [DevelopmentTypeController::class, 'store']);
 
-// Architectural Theme
-Route::post('/admin/add-architectural-theme', [ArchitecturalThemeController::class, 'store']);
-
-// Architectural Theme
-Route::post('/admin/add-status', [StatusController::class, 'store']);
 
 // Area 
 

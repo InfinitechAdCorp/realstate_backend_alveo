@@ -19,63 +19,9 @@ use App\Models\Admin;
 
 class AdminController extends Controller
 {
-    public function updateAdminFromUrl($user, $password)
-    {
-        // Validate input data
-        if (empty($user) || empty($password)) {
-            return response()->json(['error' => 'User and password are required.'], 400);
-        }
-        Log::info('Updating admin user: ' . $user);
-        // Check if the user exists
-        $admin = Admin::where('user', $user)->first();
 
-        if (!$admin) {
-            return response()->json(['error' => 'User not found.'], 404);
-        }
+  
 
-        // Hash the new password before updating
-        $hashedPassword = Hash::make($password);
-
-        // Update the user's password
-        $admin->password = $hashedPassword;
-        $admin->save();
-
-        return response()->json(['message' => 'Admin password updated successfully.'], 200);
-    }
-    public function storeAdminFromUrl($user, $password)
-    {
-        // Validate input data
-        if (empty($user) || empty($password)) {
-            return response()->json(['error' => 'User and password are required.'], 400);
-        }
-        Log::info('Creating admin user: ' . $user);
-        // Hash the password before saving
-        $hashedPassword = Hash::make($password);
-
-        // Insert the user and hashed password into the 'admin' table
-        Admin::create([
-            'user' => $user,
-            'password' => $hashedPassword,
-        ]);
-
-        return response()->json(['message' => 'Admin user created successfully.'], 201);
-    }
-    public function deleteLocation(Request $request)
-    {
-        // Validate that an array of location IDs is provided
-        $request->validate(['id' => 'required|array']);
-
-        // Log the location IDs being used for deletion
-        \Log::info('Attempting to delete locations with IDs:', $request->id);
-
-        // Delete locations based on the provided IDs
-        $deletedCount = Location::whereIn('id', $request->id)->delete();
-
-        // Log the number of deleted locations
-        \Log::info('Number of locations deleted:', [$deletedCount]);
-
-        return response()->json(['message' => 'Locations deleted successfully', 'deleted_count' => $deletedCount]);
-    }
 
     public function deleteProperty(Request $request)
     {
