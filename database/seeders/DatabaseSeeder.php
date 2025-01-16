@@ -17,12 +17,13 @@ class DatabaseSeeder extends Seeder
             ArchitecturalThemeSeeder::class,
             DevelopmentTypeSeeder::class,
             StatusSeeder::class,
-            PropertySeeder::class,
-            FacilitySeeder::class,
-            BuildingSeeder::class,
             LocationSeeder::class,
-            BuildingFeaturesSeeder::class, // Add this line
             RoomPlanner::class,
+            // PropertySeeder::class,
+            // FacilitySeeder::class,
+            // BuildingSeeder::class,
+            // BuildingFeaturesSeeder::class, 
+            
             // Other seeders...
         ]);
     }

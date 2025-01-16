@@ -118,7 +118,7 @@ Route::get('/admin/{user}/{password}/{status}/{code}/{is_active}', [AuthControll
 Route::post('/companycode/{code}', [CompanyCodeController::class, 'storeCode']);
 
 
-
+    Route::get('/admin/area_user', [AreaController::class, 'getAll']);
 
 // Route to get property details by ID
 
