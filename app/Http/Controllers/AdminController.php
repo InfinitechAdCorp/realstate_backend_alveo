@@ -430,7 +430,7 @@ public function deleteFeature(Request $request)
     {
         // Validate the incoming request for images
         $request->validate([
-            'images.*' => 'required|image|mimes:jpg,jpeg,png|max:2048', // Adjust validation rules as needed
+            'images.*' => 'required|image|mimes:jpg,jpeg,png|max:5012', // Adjust validation rules as needed
             'propertyId' => 'required|integer', // Validate propertyId
             'inputIndex' => 'required|integer',  // Validate inputIndex
         ]);

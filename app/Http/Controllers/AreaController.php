@@ -52,7 +52,7 @@ public function store(Request $request)
         'area_name' => 'required|string|max:255',
         'title' => 'required|string|max:255',
         'description' => 'required|string',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Handle file upload validation
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5012', // Handle file upload validation
     ]);
 
     // Initialize imageUrl variable to null in case no image is uploaded
