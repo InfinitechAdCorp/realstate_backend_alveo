@@ -49,22 +49,24 @@ class ChatbotController extends Controller
 
         $userMessage = $validated['message'];
 
-        $words = explode(' ', $userMessage);
+        $matchedEntry = Chatbot::where('question', '=', $userMessage)->first();
 
-        $pattern = implode('|', array_map(function ($word) {
-            return '\\b' . preg_quote($word, '/') . '\\b';
-        }, $words));
+        if (!$matchedEntry) {
+            $words = explode(' ', $userMessage);
 
-        $matchedEntry = Chatbot::where('question', 'REGEXP', $pattern)->first();
+            $pattern = implode('|', array_map(function ($word) {
+                return '\\b' . preg_quote($word, '/') . '\\b';
+            }, $words));
+
+            $matchedEntry = Chatbot::where('question', 'REGEXP', $pattern)->first();
+        }
 
         if ($matchedEntry) {
-            // Return the matched answer
             return response()->json([
                 'status' => 'success',
                 'answer' => $matchedEntry->answer,
             ], 200);
         } else {
-            // If no match is found, return a not found status
             return response()->json([
                 'status' => 'not_found',
                 'answer' => 'Sorry, I could not find an answer to your question.',
