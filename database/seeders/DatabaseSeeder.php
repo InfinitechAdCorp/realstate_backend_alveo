@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             ArchitecturalThemeSeeder::class,
             DevelopmentTypeSeeder::class,
             StatusSeeder::class,
-            LocationSeeder::class,
+            // LocationSeeder::class,
             RoomPlanner::class,
             // PropertySeeder::class,
             // FacilitySeeder::class,
