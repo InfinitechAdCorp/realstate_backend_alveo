@@ -10,14 +10,7 @@ class FeatureController extends Controller
 {
 public function addFeature(Request $request)
 {
-    // Check if 'features' is provided and is an array
-    $features = $request->input('features');
-
-    if (!$features || !is_array($features)) {
-        return response()->json(['error' => 'No features provided or invalid format.'], 400);
-    }
-
-    foreach ($features as $propertyId => $featuresList) {
+    foreach ($request->input('features') as $propertyId => $features) {
         // Find the property by propertyId
         $property = Property::find($propertyId);
 
@@ -31,7 +24,7 @@ public function addFeature(Request $request)
         // Array to store new features to be appended
         $newFeatures = [];
 
-        foreach ($featuresList as $index => $feature) {
+        foreach ($features as $index => $feature) {
             // Process the feature image if provided
             $imagePath = null;
             if ($request->hasFile("features.$propertyId.$index.featureImage")) {
@@ -70,7 +63,6 @@ public function addFeature(Request $request)
 
     return response()->json(['success' => 'Features added successfully.']);
 }
-
 public function uploadImage(Request $request)
 {
     // Validate the request
