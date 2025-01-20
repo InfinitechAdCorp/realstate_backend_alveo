@@ -23,7 +23,7 @@ use App\Http\Controllers\StatusController;
 use App\Http\Controllers\SubmitPropertyController;
 use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Http;
- 
+ use App\Http\Controllers\TestimonialController;
 // routes/api.php
 
 // In routes/api.php
@@ -80,13 +80,19 @@ Route::get('/admin/properties', [PropertyController::class, 'properties']);
 Route::get('/admin/buildings', [BuildingController::class, 'buildings']);
 Route::get('/admin/facilities', [BuildingFeatureController::class, 'facilities']);
 Route::get('/admin/features', [PropertyController::class, 'features']);
+
+Route::get('testimonials', [TestimonialController::class, 'index']); // Get all testimonials
+Route::post('testimonials', [TestimonialController::class, 'store']); // Store a new testimonial
+Route::get('testimonials/{id}', [TestimonialController::class, 'show']); // Get a specific testimonial
+Route::put('testimonials/{id}', [TestimonialController::class, 'update']); // Update a testimonial
+Route::delete('testimonials/{id}', [TestimonialController::class, 'destroy']); // Delete a testimonial
 });
 
 Route::middleware('auth:sanctum')->post('/logoutAll', [AuthController::class, 'logoutAll']);
 // Route::middleware(['web'])->get('/csrf-token', function () {
 //     return response()->json(['csrf_token' => csrf_token()]);
 // });
-
+Route::get('testimonials_user', [TestimonialController::class, 'index']); // Get all testimonials
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
