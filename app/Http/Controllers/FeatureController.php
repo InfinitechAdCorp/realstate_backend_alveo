@@ -31,8 +31,11 @@ public function addFeature(Request $request)
                 $imageFile = $request->file("features.$propertyId.$index.featureImage");
                 $fileName = time() . '_' . $imageFile->getClientOriginalName(); // Unique file name
                 
-                // Use propertyName in the path
-                $destinationPath = public_path('property/' . $property->name);
+                // Convert property name to lowercase for folder and URL
+                $propertyFolder = strtolower($property->name);
+
+                // Use lowercase propertyName in the path
+                $destinationPath = public_path('property/' . $propertyFolder);
 
                 // Ensure the directory exists
                 if (!file_exists($destinationPath)) {
@@ -42,8 +45,8 @@ public function addFeature(Request $request)
                 // Move the file to the public directory
                 $imageFile->move($destinationPath, $fileName);
 
-                // Generate the public URL for the image
-                $imagePath = asset('property/' . $property->name . '/' . $fileName);
+                // Generate the public URL for the image and ensure it's in lowercase
+                $imagePath = asset('property/' . $propertyFolder . '/' . strtolower($fileName)); // Convert file name to lowercase
             }
 
             // Prepare the new feature data with the correct full URL for the image
@@ -99,18 +102,18 @@ public function uploadImage(Request $request)
                 $image = substr($feature['image'], strpos($feature['image'], ',') + 1);
                 $image = base64_decode($image);
 
-                // Generate a unique file name and save the image
-                $imageName = uniqid() . '.' . $type[1];
+                // Generate a unique file name, convert to lowercase, and save the image
+                $imageName = strtolower(uniqid()) . '.' . strtolower($type[1]); // Ensure the file name is lowercase
                 $imagePath = '/property/' . $folderName . '/' . $imageName; // Leading slash added
                 file_put_contents(public_path($imagePath), $image);
 
             } elseif (preg_match('/^assets\//', $feature['image'])) {
                 // If the image path is a relative file path (assets/...)
-                $imagePath = '/property/' . $folderName . '/' . basename($feature['image']); // Leading slash added
+                $imagePath = '/property/' . $folderName . '/' . strtolower(basename($feature['image'])); // Convert file name to lowercase
             } elseif ($request->hasFile('features.*.image')) {
                 // Handle uploaded file (not base64)
                 $file = $request->file('features.' . $key . '.image');
-                $fileName = $file->getClientOriginalName();
+                $fileName = strtolower($file->getClientOriginalName()); // Ensure the file name is lowercase
                 $file->move($storagePath, $fileName);
                 $imagePath = '/property/' . $folderName . '/' . $fileName; // Leading slash added
             }
@@ -138,6 +141,7 @@ public function uploadImage(Request $request)
         ], 500);
     }
 }
+
 
 
 }

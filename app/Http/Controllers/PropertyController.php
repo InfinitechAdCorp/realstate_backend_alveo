@@ -53,7 +53,7 @@ public function getAllArchitectural()
 
     return response()->json($locations);
 }
- public function store(Request $request)
+public function store(Request $request)
 {
     // Validate incoming request, including file validation
     $request->validate([
@@ -69,13 +69,12 @@ public function getAllArchitectural()
         'land_area' => 'required|string|max:255',
         'development_type' => 'required|string|max:255',
         'architectural_theme' => 'required|string|max:255',
-      'path' => 'nullable|image|max:5120', // 5120 KB = 5 MB
-
+        'path' => 'nullable|image|max:5120', // 5120 KB = 5 MB
         'view' => 'nullable|image|max:5120',
     ]);
 
     // Generate a folder name based on the property name or a unique identifier
-    $folderName = strtolower(str_replace(' ', '_', $request->name));
+    $folderName = strtolower(str_replace(' ', '_', $request->name));  // Convert folder name to lowercase
 
     // Get the path where the files will be stored (directly in public/property)
     $storagePath = public_path('property/' . $folderName);
@@ -92,7 +91,7 @@ public function getAllArchitectural()
     // Check and handle 'path' file upload
     if ($request->hasFile('path')) {
         $pathFile = $request->file('path');
-        $pathFileName = time() . '_' . $pathFile->getClientOriginalName();  // Ensure unique file name
+        $pathFileName = time() . '_' . strtolower($pathFile->getClientOriginalName());  // Ensure the file name is lowercase
         $pathFilePath = 'property/' . $folderName . '/' . $pathFileName;  // Store path relative to 'public' directory
         $pathFile->move($storagePath, $pathFileName); // Move the file to the folder
     }
@@ -100,7 +99,7 @@ public function getAllArchitectural()
     // Check and handle 'view' file upload
     if ($request->hasFile('view')) {
         $viewFile = $request->file('view');
-        $viewFileName = time() . '_' . $viewFile->getClientOriginalName();  // Ensure unique file name
+        $viewFileName = time() . '_' . strtolower($viewFile->getClientOriginalName());  // Ensure the file name is lowercase
         $viewFilePath = 'property/' . $folderName . '/' . $viewFileName;  // Store path relative to 'public' directory
         $viewFile->move($storagePath, $viewFileName); // Move the file to the folder
     }

@@ -13,7 +13,7 @@ public function addBuildings(Request $request)
         // Validate the request data
         $validated = $request->validate([
             'propertyId' => 'required|integer',
-               'propertyName' => 'required|string',
+            'propertyName' => 'required|string',
             'buildingName' => 'required|string',
             'developmentType' => 'required|string',
             'residentialLevels' => 'required|integer',
@@ -38,8 +38,8 @@ public function addBuildings(Request $request)
 
         // Handle file upload for 'buildingView' and update path if the file exists
         if ($request->hasFile('buildingView')) {
-            // Sanitize property name for directory creation
-            $safePropertyName = preg_replace('/[^A-Za-z0-9_\-]/', '_', $validated['propertyName']);
+            // Sanitize property name for directory creation and convert to lowercase
+            $safePropertyName = strtolower(preg_replace('/[^A-Za-z0-9_\-]/', '_', $validated['propertyName']));
 
             // Define the destination directory
             $destinationPath = public_path("property/{$safePropertyName}");
@@ -57,12 +57,12 @@ public function addBuildings(Request $request)
             // Move the file to the destination path
             $file->move($destinationPath, $fileName);
 
-            // Set the public URL for the uploaded file
+            // Set the public URL for the uploaded file with lowercase path
             $publicPath = asset("property/{$safePropertyName}/{$fileName}");
             Log::info('File uploaded successfully', ['path' => $publicPath]);
 
             // Add file path to the building data
-            $building['path'] = $publicPath;
+            $building['path'] = strtolower($publicPath);
         }
 
         // Save building data to the database
@@ -84,6 +84,7 @@ public function addBuildings(Request $request)
         return response()->json(['error' => 'An unexpected error occurred'], 500);
     }
 }
+
 
 
 
